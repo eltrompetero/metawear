@@ -14,11 +14,11 @@
 @synthesize accelerometerDataArrays,gyroDataArrays;
 @synthesize foundMetaWearsLabels,connectedDevicesLabel;
 @synthesize manager,path,deviceIdentifiers;
+@synthesize bluetoothManager;
 
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view, typically from a nib.
-    
     manager = [MBLMetaWearManager sharedManager];
     
     //Allow any number of lines in labels.
@@ -28,6 +28,32 @@
     accelerometerDataArrays = [NSMutableArray array];  // Arrays containing logs for each device.
     gyroDataArrays = [NSMutableArray array];  // Arrays containing logs for each device.
     deviceIdentifiers = [NSMutableArray array];
+}
+
+- (void)viewDidAppear:(BOOL) state {
+    //Initialize bluetooth manager.
+    bluetoothManager = [[CBCentralManager alloc]
+                             initWithDelegate:nil
+                             queue:nil
+                             options:[NSDictionary dictionaryWithObject:[NSNumber numberWithInt:0]
+                             forKey:CBCentralManagerOptionShowPowerAlertKey]];
+    
+    //Check if bluetooth is on and send alert if it isn't.
+    if (bluetoothManager.state!=CBCentralManagerStatePoweredOn) {
+        UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"Turn bluetooth on"
+                                        message:@"Bluetooth must be activated to find devices."
+                                        preferredStyle:UIAlertControllerStyleAlert];
+        UIAlertAction *settingsAction = [UIAlertAction actionWithTitle:@"Settings"
+                         style:UIAlertActionStyleDefault
+                         handler:^(UIAlertAction *action) {
+                             [[UIApplication sharedApplication] openURL: [NSURL URLWithString: UIApplicationOpenSettingsURLString]];
+                             }];
+        UIAlertAction *closeAction = [UIAlertAction actionWithTitle:@"Close" style:
+                                      UIAlertActionStyleDefault handler:nil];
+        [alert addAction:closeAction];
+        [alert addAction:settingsAction];
+        [self presentViewController:alert animated:NO completion:nil];
+    }
 }
 
 - (void)didReceiveMemoryWarning {

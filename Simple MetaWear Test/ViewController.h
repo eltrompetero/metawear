@@ -8,11 +8,14 @@
 
 #import <UIKit/UIKit.h>
 #import <MetaWear/MetaWear.h>
+#import <CoreBluetooth/CoreBluetooth.h>
+
 @interface ViewController : UIViewController
 @property (strong, nonatomic) NSMutableArray *accelerometerDataArrays;
 @property (strong, nonatomic) NSMutableArray *gyroDataArrays;
 @property NSString *path;
 @property NSMutableArray *deviceIdentifiers;
+@property (strong,nonatomic) CBCentralManager *bluetoothManager;
 @property (weak, nonatomic) IBOutlet UILabel *foundMetaWearsLabels;
 @property (weak, nonatomic) IBOutlet UILabel *connectedDevicesLabel;
 
