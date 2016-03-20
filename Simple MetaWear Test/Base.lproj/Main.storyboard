@@ -69,12 +69,19 @@
                                 <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                                 <nil key="highlightedColor"/>
                             </label>
+                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="0Li-O9-rN5">
+                                <rect key="frame" x="171" y="207" width="77" height="30"/>
+                                <state key="normal" title="Refresh list"/>
+                                <connections>
+                                    <action selector="refreshFoundMetaWearsLabel:" destination="BYZ-38-t0r" eventType="touchUpInside" id="Ipu-fl-gaP"/>
+                                </connections>
+                            </button>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
                     </view>
                     <connections>
                         <outlet property="connectedDevicesLabel" destination="xwv-2A-SnB" id="KMW-Z6-kfs"/>
-                        <outlet property="listOfFoundMetaWears" destination="ZmH-Ir-DUv" id="7dM-a9-HEM"/>
+                        <outlet property="foundMetaWearsLabels" destination="ZmH-Ir-DUv" id="7dM-a9-HEM"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>

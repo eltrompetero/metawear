@@ -8,10 +8,12 @@
 
 #import "ViewController.h"
 #import <MetaWear/MetaWear.h>
+#define SAMPLE_FREQUENCY 100
+#define INITIAL_CAPACITY 100000
 
 @implementation ViewController
-@synthesize accelerometerDataArrays;
-@synthesize listOfFoundMetaWears,connectedDevicesLabel;
+@synthesize accelerometerDataArrays,gyroDataArrays;
+@synthesize foundMetaWearsLabels,connectedDevicesLabel;
 @synthesize manager,path;
 
 - (void)viewDidLoad {
@@ -21,10 +23,11 @@
     manager = [MBLMetaWearManager sharedManager];
     
     //Allow any number of lines in labels.
-    listOfFoundMetaWears.numberOfLines = 0;
+    foundMetaWearsLabels.numberOfLines = 0;
     connectedDevicesLabel.numberOfLines = 0;
     
-    accelerometerDataArrays = [NSMutableArray array];
+    accelerometerDataArrays = [NSMutableArray array];  // Arrays containing logs for each device.
+    gyroDataArrays = [NSMutableArray array];  // Arrays containing logs for each device.
 }
 
 - (void)didReceiveMemoryWarning {
@@ -44,18 +47,20 @@
                 [foundDevice rememberDevice];
                 NSLog(@"Found device %@",foundDevice);
 //                foundDevice.name = [NSString stringWithFormat:@"Device_%d",i];
-                [metaWearNames appendString: [@"\n" stringByAppendingString: foundDevice.identifier.UUIDString]];
+                [metaWearNames appendString: [@"\n" stringByAppendingString:
+                                              foundDevice.identifier.UUIDString]];
                 i++;
             }
         }
-        
-        [self updateLabel:metaWearNames:listOfFoundMetaWears];
+        // List found metaWears.
+        [self updateLabel:metaWearNames:foundMetaWearsLabels];
         
         // Show found devices.
         NSLog(@"MetaWears found:");
         NSLog(@"%@",metaWearNames);
     }];
 }
+
 - (IBAction)connectToDevices:(id)sender {
     [manager retrieveSavedMetaWearsWithHandler:^(NSArray *array) {
         for (MBLMetaWear *currdevice in array) {
@@ -77,19 +82,41 @@
     }];
 }
 
+- (IBAction)refreshFoundMetaWearsLabel:(id)sender {
+    __block NSMutableString *metaWearIds = [NSMutableString stringWithString:@""];
+    
+    [manager retrieveSavedMetaWearsWithHandler:^(NSArray *listOfDevices) {
+        for (MBLMetaWear *device in listOfDevices) {
+            [metaWearIds appendString:[@"\n" stringByAppendingString: device.identifier.UUIDString]];
+        }
+    }];
+    [self updateLabel: metaWearIds : connectedDevicesLabel];
+    NSLog(@"Connected devices %@",metaWearIds);
+}
+
 - (IBAction)startRecording:(id)sender {
     [manager retrieveSavedMetaWearsWithHandler:^(NSArray *listOfDevices) {
-        int i=0;
-        for (MBLMetaWear *device in listOfDevices) {
-            accelerometerDataArrays[i] = [[NSMutableArray alloc] initWithCapacity:1000];
+        int i = 0;
+        for (MBLMetaWear *currdevice in listOfDevices) {
+            //Initialize arrays for collecting data.
+            accelerometerDataArrays[i] = [[NSMutableArray alloc] initWithCapacity:INITIAL_CAPACITY];
+            gyroDataArrays[i] = [[NSMutableArray alloc] initWithCapacity:INITIAL_CAPACITY];
             
-            NSLog(@"Starting log %d.",i);
-            device.accelerometer.sampleFrequency = 100; // Default: 100 Hz
+            //Set accelerometer parameters.
+            MBLAccelerometerBMI160 *accelerometer = (MBLAccelerometerBMI160*) currdevice.accelerometer;
+            MBLGyroBMI160 *gyro = (MBLGyroBMI160*) currdevice.gyro;
             
-            MBLEvent *event = device.accelerometer.dataReadyEvent;
-            [event startNotificationsWithHandlerAsync:^(MBLAccelerometerData *obj, NSError *error) {
-//                NSLog(@"X = %f, Y = %f, Z = %f", obj.x, obj.y, obj.z);
-                accelerometerDataArrays[i] = @[obj.timestamp,@(obj.x),@(obj.y),@(obj.z)];
+            accelerometer.sampleFrequency = SAMPLE_FREQUENCY;
+            accelerometer.fullScaleRange = MBLAccelerometerBMI160Range4G;
+            gyro.sampleFrequency = SAMPLE_FREQUENCY;
+            gyro.fullScaleRange = MBLGyroBMI160Range250;
+            
+            NSLog(@"Starting log of device %d",i);
+            [currdevice.accelerometer.dataReadyEvent startNotificationsWithHandlerAsync:^(MBLAccelerometerData *obj, NSError *error) {
+                [accelerometerDataArrays[i] addObject: @[obj.timestamp,@(obj.x),@(obj.y),@(obj.z)]];
+            }];
+            [currdevice.gyro.dataReadyEvent startNotificationsWithHandlerAsync:^(MBLGyroData *obj,NSError *error) {
+                [gyroDataArrays[i] addObject: @[obj.timestamp,@(obj.x),@(obj.y),@(obj.z)]];
             }];
             i++;
         }
@@ -103,13 +130,38 @@
     
     [manager retrieveSavedMetaWearsWithHandler:^(NSArray *listOfDevices) {
         int i=0;
+        unsigned long int gyroCount,accelCount,count;
+        
         for (MBLMetaWear *device in listOfDevices) {
             [device.accelerometer.dataReadyEvent stopNotificationsAsync];
+            [device.gyro.dataReadyEvent stopNotificationsAsync];
+            
+            //Combine arrays.
+            NSMutableArray *combinedData = [NSMutableArray array];
+            //Find longer array
+            gyroCount = [gyroDataArrays[i] count];
+            accelCount = [accelerometerDataArrays[i] count];
+            if (gyroCount<accelCount) {
+                count = gyroCount;
+            } else {
+                count = accelCount;
+            }
+            // Columns of [timeStamp,x,y,z,timeStamp,x,y,z].
+            for (int j=0;j<count;j++ ) {
+                combinedData[j] = @[accelerometerDataArrays[i][j][0],
+                                    accelerometerDataArrays[i][j][1],
+                                    accelerometerDataArrays[i][j][2],
+                                    accelerometerDataArrays[i][j][3],
+                                    gyroDataArrays[i][j][0],
+                                    gyroDataArrays[i][j][1],
+                                    gyroDataArrays[i][j][2],
+                                    gyroDataArrays[i][j][3]];
+            }
             
             // Write data to file.
             path = [documentsDirectory stringByAppendingPathComponent:
                                             [NSString stringWithFormat:@"accel_output%d.plist",i]];
-            [accelerometerDataArrays[i] writeToFile:path atomically:YES];
+            [combinedData writeToFile:path atomically:YES];
             if ([[NSFileManager defaultManager] isWritableFileAtPath:path]) {
                 NSLog(@"%@ writable",path);
             }else {
