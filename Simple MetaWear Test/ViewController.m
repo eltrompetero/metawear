@@ -7,14 +7,13 @@
 //
 
 #import "ViewController.h"
-#import <MetaWear/MetaWear.h>
-#define SAMPLE_FREQUENCY 100
+#define SAMPLE_FREQUENCY 200
 #define INITIAL_CAPACITY 100000
 
 @implementation ViewController
 @synthesize accelerometerDataArrays,gyroDataArrays;
 @synthesize foundMetaWearsLabels,connectedDevicesLabel;
-@synthesize manager,path;
+@synthesize manager,path,deviceIdentifiers;
 
 - (void)viewDidLoad {
     [super viewDidLoad];
@@ -28,6 +27,7 @@
     
     accelerometerDataArrays = [NSMutableArray array];  // Arrays containing logs for each device.
     gyroDataArrays = [NSMutableArray array];  // Arrays containing logs for each device.
+    deviceIdentifiers = [NSMutableArray array];
 }
 
 - (void)didReceiveMemoryWarning {
@@ -36,28 +36,25 @@
 }
 
 - (IBAction)startSearch:(id)sender {
-    __block NSMutableString *metaWearNames = [NSMutableString stringWithString: @""];
     __block int i=0;
     
     [manager startScanForMetaWearsAllowDuplicates:NO handler:^(NSArray *array) {
         for (MBLMetaWear *foundDevice in array) {
             //Exclude duplicates.
-            //NOTE: will need to figure out propery naming scheme without collisions
-            if ([metaWearNames containsString:foundDevice.identifier.UUIDString]==NO) {
+            //NOTE: will need to figure out proper naming scheme without collisions if you don't want to use identifiers
+            if ([deviceIdentifiers indexOfObject:foundDevice.identifier.UUIDString]==NSNotFound) {
                 [foundDevice rememberDevice];
                 NSLog(@"Found device %@",foundDevice);
-//                foundDevice.name = [NSString stringWithFormat:@"Device_%d",i];
-                [metaWearNames appendString: [@"\n" stringByAppendingString:
-                                              foundDevice.identifier.UUIDString]];
+                [deviceIdentifiers addObject:foundDevice.identifier.UUIDString];
                 i++;
             }
         }
         // List found metaWears.
-        [self updateLabel:metaWearNames:foundMetaWearsLabels];
+        [self updateLabel:[deviceIdentifiers componentsJoinedByString:@"\n"]:foundMetaWearsLabels];
         
         // Show found devices.
         NSLog(@"MetaWears found:");
-        NSLog(@"%@",metaWearNames);
+        NSLog(@"%@",[deviceIdentifiers componentsJoinedByString:@"\n"]);
     }];
 }
 
@@ -83,15 +80,15 @@
 }
 
 - (IBAction)refreshFoundMetaWearsLabel:(id)sender {
-    __block NSMutableString *metaWearIds = [NSMutableString stringWithString:@""];
+    [deviceIdentifiers removeAllObjects];
     
     [manager retrieveSavedMetaWearsWithHandler:^(NSArray *listOfDevices) {
         for (MBLMetaWear *device in listOfDevices) {
-            [metaWearIds appendString:[@"\n" stringByAppendingString: device.identifier.UUIDString]];
+            [deviceIdentifiers addObject:device.identifier.UUIDString];
         }
     }];
-    [self updateLabel: metaWearIds : connectedDevicesLabel];
-    NSLog(@"Connected devices %@",metaWearIds);
+    [self updateLabel: [deviceIdentifiers componentsJoinedByString:@"\n"] : connectedDevicesLabel];
+    NSLog(@"Connected devices %@",[deviceIdentifiers componentsJoinedByString:@"\n"]);
 }
 
 - (IBAction)startRecording:(id)sender {
@@ -174,12 +171,18 @@
     NSLog(@"Done writing.");
 }
 
-- (void) updateLabel:(NSMutableString*) text : (UILabel*) labelToChange {
+
+/*******************
+ Helper functions
+********************/
+
+- (void) updateLabel:(NSString*) text : (UILabel*) labelToChange {
     //Compute label size so we can fit all found devices.
     CGSize labelSize = [text sizeWithAttributes:@{NSFontAttributeName:labelToChange.font}];
     labelToChange.frame = CGRectMake( labelToChange.frame.origin.x, labelToChange.frame.origin.y,
                                       labelToChange.frame.size.width, labelSize.height);
     labelToChange.text = text;
 }
+
 @end
 
