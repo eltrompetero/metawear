@@ -25,6 +25,7 @@
     foundMetaWearsLabels.numberOfLines = 0;
     connectedDevicesLabel.numberOfLines = 0;
     
+    //Initialize data arrays.
     accelerometerDataArrays = [NSMutableArray array];  // Arrays containing logs for each device.
     gyroDataArrays = [NSMutableArray array];  // Arrays containing logs for each device.
     deviceIdentifiers = [NSMutableArray array];
@@ -33,11 +34,13 @@
 - (void)viewDidAppear:(BOOL) state {
     //Initialize bluetooth manager.
     bluetoothManager = [[CBCentralManager alloc]
-                             initWithDelegate:nil
+                             initWithDelegate:self
                              queue:nil
                              options:[NSDictionary dictionaryWithObject:[NSNumber numberWithInt:0]
                              forKey:CBCentralManagerOptionShowPowerAlertKey]];
-    
+}
+
+- (void)centralManagerDidUpdateState:(CBCentralManager *)central {
     //Check if bluetooth is on and send alert if it isn't.
     if (bluetoothManager.state!=CBCentralManagerStatePoweredOn) {
         UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"Turn bluetooth on"
