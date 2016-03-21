@@ -20,10 +20,18 @@
 @synthesize manager,path,deviceIdentifiers,deviceInformation;
 @synthesize bluetoothManager;
 @synthesize devicePicker;
+@synthesize scroller;
 
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view, typically from a nib.
+    scroller.scrollEnabled = YES;
+    scroller.userInteractionEnabled = YES;
+    scroller.showsVerticalScrollIndicator = YES;
+    scroller.showsHorizontalScrollIndicator = YES;
+    scroller.contentSize = CGSizeMake(600,600);//width and height depends your scroll area
+
+    
     manager = [MBLMetaWearManager sharedManager];
     self.devicePicker.delegate = self;
     pickerData = @[@"No devices."];
@@ -150,6 +158,7 @@
         }
         [self refreshFoundMetaWearsLabel:self];
         pickerData = deviceIdentifiers;
+        selectedDeviceForFlashing = 0;
         [devicePicker reloadAllComponents];
     }];
 }
@@ -174,7 +183,9 @@
         [self updateLabel: [deviceIdentifiers componentsJoinedByString:@"\n"] : connectedDevicesLabel];
         NSLog(@"Connected devices %@",[deviceIdentifiers componentsJoinedByString:@"\n"]);
     }
+    
     pickerData = deviceIdentifiers;
+    selectedDeviceForFlashing = 0;
     [devicePicker reloadAllComponents];
 }
 
@@ -286,6 +297,10 @@
         };
         [self updateLabel:@"" :connectedDevicesLabel];
     }];
+    
+    pickerData = @[@"No devices."];
+    selectedDeviceForFlashing = 0;
+    [devicePicker reloadAllComponents];
 
 }
 

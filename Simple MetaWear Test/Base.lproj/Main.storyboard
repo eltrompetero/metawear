@@ -17,6 +17,9 @@
                         <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
+                            <scrollView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" fixedFrame="YES" alwaysBounceHorizontal="YES" translatesAutoresizingMaskIntoConstraints="NO" id="cxz-Fl-zga">
+                                <rect key="frame" x="0.0" y="0.0" width="436" height="600"/>
+                            </scrollView>
                             <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="EtI-XV-pAk">
                                 <rect key="frame" x="14" y="23" width="152" height="30"/>
                                 <state key="normal" title="Search for MetaWears"/>
@@ -101,12 +104,11 @@
                                     <action selector="flashDevice:" destination="BYZ-38-t0r" eventType="touchUpInside" id="SwE-Kq-wdb"/>
                                 </connections>
                             </button>
-                            <scrollView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" fixedFrame="YES" alwaysBounceHorizontal="YES" translatesAutoresizingMaskIntoConstraints="NO" id="cxz-Fl-zga">
-                                <rect key="frame" x="0.0" y="0.0" width="436" height="600"/>
-                            </scrollView>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
                     </view>
+                    <freeformSimulatedSizeMetrics key="simulatedDestinationMetrics"/>
+                    <size key="freeformSize" width="600" height="600"/>
                     <connections>
                         <outlet property="connectedDevicesLabel" destination="xwv-2A-SnB" id="KMW-Z6-kfs"/>
                         <outlet property="devicePicker" destination="GoA-2f-ik7" id="4U0-9w-yBu"/>
