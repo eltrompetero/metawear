@@ -15,15 +15,19 @@
 @property (strong, nonatomic) NSMutableArray *gyroDataArrays;
 @property NSString *path;
 @property NSMutableArray *deviceIdentifiers;
+@property NSMutableArray *deviceInformation;
 @property (strong, atomic) CBCentralManager *bluetoothManager;
 @property (weak, nonatomic) IBOutlet UILabel *foundMetaWearsLabels;
 @property (weak, nonatomic) IBOutlet UILabel *connectedDevicesLabel;
+@property (weak, nonatomic) IBOutlet UIPickerView *devicePicker;
+@property (weak, nonatomic) IBOutlet UIScrollView *scroller;
 
 @property MBLMetaWearManager *manager;
 
 - (IBAction)startSearch:(id)sender; 
 - (IBAction)startRecording:(id)sender;
 - (IBAction)refreshFoundMetaWearsLabel:(id)sender;
+- (IBAction)flashDevice:(id)sender;
 - (void)updateLabel : (NSString*)text : (UILabel*)label;
 - (void)centralManagerDidUpdateState:(CBCentralManager *)central;
 @end

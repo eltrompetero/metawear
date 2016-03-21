@@ -11,15 +11,23 @@
 #define INITIAL_CAPACITY 100000
 
 @implementation ViewController
+{
+    NSArray *pickerData;
+    NSInteger selectedDeviceForFlashing;
+}
 @synthesize accelerometerDataArrays,gyroDataArrays;
 @synthesize foundMetaWearsLabels,connectedDevicesLabel;
-@synthesize manager,path,deviceIdentifiers;
+@synthesize manager,path,deviceIdentifiers,deviceInformation;
 @synthesize bluetoothManager;
+@synthesize devicePicker;
 
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view, typically from a nib.
     manager = [MBLMetaWearManager sharedManager];
+    self.devicePicker.delegate = self;
+    pickerData = @[@"No devices."];
+    selectedDeviceForFlashing = -1;
     
     //Allow any number of lines in labels.
     foundMetaWearsLabels.numberOfLines = 0;
@@ -29,6 +37,7 @@
     accelerometerDataArrays = [NSMutableArray array];  // Arrays containing logs for each device.
     gyroDataArrays = [NSMutableArray array];  // Arrays containing logs for each device.
     deviceIdentifiers = [NSMutableArray array];
+    deviceInformation = [NSMutableArray array];
 }
 
 - (void)viewDidAppear:(BOOL) state {
@@ -64,6 +73,27 @@
     // Dispose of any resources that can be recreated.
 }
 
+- (int)numberOfComponentsInPickerView:(UIPickerView*) pickerView {
+    return 1;
+}
+
+- (int)pickerView:(UIPickerView*) pickerView numberOfRowsInComponent:(NSInteger)component {
+    return pickerData.count;
+}
+
+- (NSString*)pickerView:(UIPickerView *)pickerView
+             titleForRow:(NSInteger)row
+             forComponent:(NSInteger)component {
+    return pickerData[row];
+}
+
+// Catpure the picker view selection
+- (void)pickerView:(UIPickerView *)pickerView didSelectRow:(NSInteger)row inComponent:(NSInteger)component
+{
+    NSLog(@"Selected %ldth device.",(long)row);
+    selectedDeviceForFlashing = row;
+}
+
 - (IBAction)startSearch:(id)sender {
     //Erase list of devices. This is problematic because it runs asynchronously with the following block of code.
 //    [manager retrieveSavedMetaWearsWithHandler:^(NSArray* listOfDevices) {
@@ -76,19 +106,18 @@
     //NOTE: Might be a good idea to exclude ones with weak signals.
     [manager startScanForMetaWearsAllowDuplicates:NO handler:^(NSArray *listOfDevices) {
         int i=0;
+        
         for (MBLMetaWear *foundDevice in listOfDevices) {
             //NOTE: will need to figure out proper naming scheme without collisions if you don't want to use identifiers
             if ([deviceIdentifiers indexOfObject:foundDevice.identifier.UUIDString]==NSNotFound) {
                 [foundDevice rememberDevice];
-                NSLog(@"Found device %@",foundDevice);
-                [deviceIdentifiers addObject:foundDevice.identifier.UUIDString];
+                [deviceIdentifiers addObject: foundDevice.identifier.UUIDString];
                 i++;
             }
         }
-        // List found metaWears.
-        [self updateLabel:[deviceIdentifiers componentsJoinedByString:@"\n"]:foundMetaWearsLabels];
         
-        // Show found devices.
+        // List found metaWears.
+        [self updateLabel: [deviceIdentifiers componentsJoinedByString:@"\n"] :foundMetaWearsLabels];
         NSLog(@"MetaWears found:");
         NSLog(@"%@",[deviceIdentifiers componentsJoinedByString:@"\n"]);
     }];
@@ -108,15 +137,25 @@
                 }
                 else {
                     NSLog(@"Connection succeeded with %@.",currdevice.identifier.UUIDString);
+                    [currdevice readBatteryLifeWithHandler:^(NSNumber *bl,NSError *error) {
+                        if (error) {
+                            bl = [NSNumber numberWithInt:-1];
+                            NSLog(@"Error in reading battery life.");
+                        }
+                        [deviceInformation addObject: bl];
+                    }];
                     [currdevice.led flashLEDColorAsync:[UIColor greenColor] withIntensity:1.0 numberOfFlashes:2];
                 }
             }];
         }
         [self refreshFoundMetaWearsLabel:self];
+        pickerData = deviceIdentifiers;
+        [devicePicker reloadAllComponents];
     }];
 }
 
 - (IBAction)refreshFoundMetaWearsLabel:(id)sender {
+    NSMutableString *info = [NSMutableString stringWithString: @""];
     [deviceIdentifiers removeAllObjects];
     
     [manager retrieveSavedMetaWearsWithHandler:^(NSArray *listOfDevices) {
@@ -124,8 +163,30 @@
             [deviceIdentifiers addObject:device.identifier.UUIDString];
         }
     }];
-    [self updateLabel: [deviceIdentifiers componentsJoinedByString:@"\n"] : connectedDevicesLabel];
-    NSLog(@"Connected devices %@",[deviceIdentifiers componentsJoinedByString:@"\n"]);
+    
+    if ([deviceIdentifiers count]==[deviceInformation count]) {
+        for (int i=0; i<[deviceIdentifiers count]; i++) {
+            [info appendFormat: @"%@ (%@)\n",deviceIdentifiers[i],deviceInformation[i]];
+        }
+        [self updateLabel: info : connectedDevicesLabel];
+        NSLog(@"Connected devices %@",info);
+    } else {
+        [self updateLabel: [deviceIdentifiers componentsJoinedByString:@"\n"] : connectedDevicesLabel];
+        NSLog(@"Connected devices %@",[deviceIdentifiers componentsJoinedByString:@"\n"]);
+    }
+    pickerData = deviceIdentifiers;
+    [devicePicker reloadAllComponents];
+}
+
+- (IBAction)flashDevice:(id)sender {
+    [manager retrieveSavedMetaWearsWithHandler:^(NSArray* listOfDevices) {
+        if (selectedDeviceForFlashing==-1) {
+            NSLog(@"Must select a device.");
+        } else{
+            MBLMetaWear *device = listOfDevices[selectedDeviceForFlashing];
+            [device.led flashLEDColorAsync:[UIColor redColor] withIntensity:0.8 numberOfFlashes:3];
+        }
+    }];
 }
 
 - (IBAction)startRecording:(id)sender {
@@ -195,7 +256,7 @@
             
             // Write data to file.
             path = [documentsDirectory stringByAppendingPathComponent:
-                                            [NSString stringWithFormat:@"accel_output%d.plist",i]];
+                                    [NSString stringWithFormat:@"%@.plist",deviceIdentifiers[i]]];
             [combinedData writeToFile:path atomically:YES];
             if ([[NSFileManager defaultManager] isWritableFileAtPath:path]) {
                 NSLog(@"%@ writable",path);

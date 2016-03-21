@@ -31,7 +31,7 @@
                                 <nil key="highlightedColor"/>
                             </label>
                             <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Jil-RF-2th">
-                                <rect key="frame" x="16" y="383" width="104" height="30"/>
+                                <rect key="frame" x="16" y="438" width="104" height="30"/>
                                 <state key="normal" title="Start recording"/>
                                 <connections>
                                     <action selector="startRecording:" destination="BYZ-38-t0r" eventType="touchUpInside" id="dZI-O8-lNa"/>
@@ -39,7 +39,7 @@
                             </button>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="No devices." textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="ZmH-Ir-DUv">
                                 <rect key="frame" x="17" y="96" width="384" height="103"/>
-                                <fontDescription key="fontDescription" type="system" pointSize="12"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="9"/>
                                 <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                                 <nil key="highlightedColor"/>
                             </label>
@@ -57,7 +57,7 @@
                                 </connections>
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="6gn-Vv-v6I">
-                                <rect key="frame" x="158" y="383" width="102" height="30"/>
+                                <rect key="frame" x="158" y="438" width="102" height="30"/>
                                 <state key="normal" title="Stop recording"/>
                                 <connections>
                                     <action selector="stopRecording:" destination="BYZ-38-t0r" eventType="touchUpInside" id="fUc-cx-VEh"/>
@@ -65,7 +65,7 @@
                             </button>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="No devices." textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="xwv-2A-SnB">
                                 <rect key="frame" x="17" y="266" width="393" height="109"/>
-                                <fontDescription key="fontDescription" type="system" pointSize="11"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="9"/>
                                 <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                                 <nil key="highlightedColor"/>
                             </label>
@@ -77,26 +77,41 @@
                                 </connections>
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="2Oo-iy-qOf">
-                                <rect key="frame" x="17" y="430" width="154" height="30"/>
+                                <rect key="frame" x="17" y="485" width="154" height="30"/>
                                 <state key="normal" title="Disconnect all devices"/>
                                 <connections>
                                     <action selector="disconnectDevices:" destination="BYZ-38-t0r" eventType="touchUpInside" id="Q5I-ic-nXT"/>
                                 </connections>
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="OWJ-tv-lng">
-                                <rect key="frame" x="17" y="480" width="30" height="30"/>
+                                <rect key="frame" x="17" y="535" width="30" height="30"/>
                                 <state key="normal" title="Exit"/>
                                 <connections>
                                     <action selector="exit:" destination="BYZ-38-t0r" eventType="touchUpInside" id="d52-Mx-MXY"/>
                                     <action selector="exitProgram:" destination="BYZ-38-t0r" eventType="touchUpInside" id="xM2-BI-Veu"/>
                                 </connections>
                             </button>
+                            <pickerView contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="GoA-2f-ik7">
+                                <rect key="frame" x="16" y="383" width="265" height="51"/>
+                            </pickerView>
+                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="T3B-Wh-MNi">
+                                <rect key="frame" x="291" y="392" width="37" height="30"/>
+                                <state key="normal" title="Flash"/>
+                                <connections>
+                                    <action selector="flashDevice:" destination="BYZ-38-t0r" eventType="touchUpInside" id="SwE-Kq-wdb"/>
+                                </connections>
+                            </button>
+                            <scrollView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" fixedFrame="YES" alwaysBounceHorizontal="YES" translatesAutoresizingMaskIntoConstraints="NO" id="cxz-Fl-zga">
+                                <rect key="frame" x="0.0" y="0.0" width="436" height="600"/>
+                            </scrollView>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
                     </view>
                     <connections>
                         <outlet property="connectedDevicesLabel" destination="xwv-2A-SnB" id="KMW-Z6-kfs"/>
+                        <outlet property="devicePicker" destination="GoA-2f-ik7" id="4U0-9w-yBu"/>
                         <outlet property="foundMetaWearsLabels" destination="ZmH-Ir-DUv" id="7dM-a9-HEM"/>
+                        <outlet property="scroller" destination="cxz-Fl-zga" id="4TE-9j-CFQ"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
