@@ -7,7 +7,7 @@
 //
 
 #import "ViewController.h"
-#define SAMPLE_FREQUENCY 100
+#define SAMPLE_FREQUENCY 10
 #define INITIAL_CAPACITY 100000
 
 @implementation ViewController
@@ -218,14 +218,16 @@
             [currdevice.accelerometer.dataReadyEvent startNotificationsWithHandlerAsync:^(MBLAccelerometerData *obj, NSError *error) {
                 if (error) {
                     NSLog(@"Error in accelerometer data.");
+                    [self.accelerometerDataArrays[i] addObject:@[@"NaN",@"NaN",@"NaN",@"NaN"]];
                 } else {
-                [self.accelerometerDataArrays[i] addObject:
-                        @[obj.timestamp,@(obj.x),@(obj.y),@(obj.z)]];
+                    [self.accelerometerDataArrays[i] addObject:
+                            @[obj.timestamp,@(obj.x),@(obj.y),@(obj.z)]];
                 }
             }];
             [currdevice.gyro.dataReadyEvent startNotificationsWithHandlerAsync:^(MBLGyroData *obj,NSError *error) {
                 if (error) {
                     NSLog(@"Error in gyrometer data.");
+                    [self.gyroDataArrays[i] addObject: @[@"NaN",@"NaN",@"NaN",@"NaN"]];
                 } else {
                     [self.gyroDataArrays[i] addObject: @[obj.timestamp,@(obj.x),@(obj.y),@(obj.z)]];
                 }
