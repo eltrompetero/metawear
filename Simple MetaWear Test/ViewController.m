@@ -17,7 +17,7 @@
 }
 @synthesize accelerometerDataArrays,gyroDataArrays;
 @synthesize foundMetaWearsLabels,connectedDevicesLabel;
-@synthesize manager,path,deviceIdentifiers,deviceInformation;
+@synthesize manager,deviceIdentifiers,deviceInformation;
 @synthesize bluetoothManager;
 @synthesize devicePicker;
 @synthesize scroller;
@@ -42,10 +42,7 @@
     connectedDevicesLabel.numberOfLines = 0;
     
     //Initialize data arrays.
-    accelerometerDataArrays = [NSMutableArray array];  // Arrays containing logs for each device.
-    gyroDataArrays = [NSMutableArray array];  // Arrays containing logs for each device.
-    deviceIdentifiers = [NSMutableArray array];
-    deviceInformation = [NSMutableArray array];
+    [self initializeDataArrays];
 }
 
 - (void)viewDidAppear:(BOOL) state {
@@ -95,7 +92,7 @@
     return pickerData[row];
 }
 
-// Catpure the picker view selection
+// Capture the picker view selection
 - (void)pickerView:(UIPickerView *)pickerView didSelectRow:(NSInteger)row inComponent:(NSInteger)component
 {
     NSLog(@"Selected %ldth device.",(long)row);
@@ -205,8 +202,8 @@
         int i = 0;
         for (MBLMetaWear *currdevice in listOfDevices) {
             //Initialize arrays for collecting data.
-            accelerometerDataArrays[i] = [[NSMutableArray alloc] initWithCapacity:INITIAL_CAPACITY];
-            gyroDataArrays[i] = [[NSMutableArray alloc] initWithCapacity:INITIAL_CAPACITY];
+            self.accelerometerDataArrays[i] = [[NSMutableArray alloc] initWithCapacity:INITIAL_CAPACITY];
+            self.gyroDataArrays[i] = [[NSMutableArray alloc] initWithCapacity:INITIAL_CAPACITY];
             
             //Set accelerometer parameters.
             MBLAccelerometerBMI160 *accelerometer = (MBLAccelerometerBMI160*) currdevice.accelerometer;
@@ -219,10 +216,10 @@
             
             NSLog(@"Starting log of device %d",i);
             [currdevice.accelerometer.dataReadyEvent startNotificationsWithHandlerAsync:^(MBLAccelerometerData *obj, NSError *error) {
-                [accelerometerDataArrays[i] addObject: @[obj.timestamp,@(obj.x),@(obj.y),@(obj.z)]];
+                [self.accelerometerDataArrays[i] addObject: @[obj.timestamp,@(obj.x),@(obj.y),@(obj.z)]];
             }];
             [currdevice.gyro.dataReadyEvent startNotificationsWithHandlerAsync:^(MBLGyroData *obj,NSError *error) {
-                [gyroDataArrays[i] addObject: @[obj.timestamp,@(obj.x),@(obj.y),@(obj.z)]];
+                [self.gyroDataArrays[i] addObject: @[obj.timestamp,@(obj.x),@(obj.y),@(obj.z)]];
             }];
             i++;
         }
@@ -230,24 +227,34 @@
 }
 
 - (IBAction)stopRecording:(id)sender {
+    [manager retrieveSavedMetaWearsWithHandler:^(NSArray *listOfDevices) {
+        int i=0;
+        for (MBLMetaWear *device in listOfDevices) {
+            //Stop streaming data.
+            [device.accelerometer.dataReadyEvent stopNotificationsAsync];
+            [device.gyro.dataReadyEvent stopNotificationsAsync];
+            NSLog(@"Stopping record %i",i);
+            i++;
+        }
+    }];
+}
+
+- (IBAction)saveFiles:(id)sender {
+    [self stopRecording:self];
+    
     NSLog(@"Writing files...");
     NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
     NSString *documentsDirectory = [paths objectAtIndex:0];
     
     [manager retrieveSavedMetaWearsWithHandler:^(NSArray *listOfDevices) {
-        int i=0;
         unsigned long int gyroCount,accelCount,count;
         
-        for (MBLMetaWear *device in listOfDevices) {
-            //Stop streaming data.
-            [device.accelerometer.dataReadyEvent stopNotificationsAsync];
-            [device.gyro.dataReadyEvent stopNotificationsAsync];
-            
+        for (int i=0; i<[self.accelerometerDataArrays count]; i++) {
             //Combine arrays.
             NSMutableArray *combinedData = [NSMutableArray array];
-            //Find longer array
-            gyroCount = [gyroDataArrays[i] count];
-            accelCount = [accelerometerDataArrays[i] count];
+            //Find longer array and save up to length of shorter array because presumably they are measured at the same time points.
+            gyroCount = [self.gyroDataArrays[i] count];
+            accelCount = [self.accelerometerDataArrays[i] count];
             if (gyroCount<accelCount) {
                 count = gyroCount;
             } else {
@@ -255,27 +262,25 @@
             }
             // Columns of [timeStamp,x,y,z,timeStamp,x,y,z].
             for (int j=0;j<count;j++ ) {
-                combinedData[j] = @[accelerometerDataArrays[i][j][0],
-                                    accelerometerDataArrays[i][j][1],
-                                    accelerometerDataArrays[i][j][2],
-                                    accelerometerDataArrays[i][j][3],
-                                    gyroDataArrays[i][j][0],
-                                    gyroDataArrays[i][j][1],
-                                    gyroDataArrays[i][j][2],
-                                    gyroDataArrays[i][j][3]];
+                combinedData[j] = @[self.accelerometerDataArrays[i][j][0],
+                                    self.accelerometerDataArrays[i][j][1],
+                                    self.accelerometerDataArrays[i][j][2],
+                                    self.accelerometerDataArrays[i][j][3],
+                                    self.gyroDataArrays[i][j][0],
+                                    self.gyroDataArrays[i][j][1],
+                                    self.gyroDataArrays[i][j][2],
+                                    self.gyroDataArrays[i][j][3]];
             }
             
             // Write data to file.
-            path = [documentsDirectory stringByAppendingPathComponent:
-                                    [NSString stringWithFormat:@"%@.plist",deviceIdentifiers[i]]];
+            NSString *path = [documentsDirectory stringByAppendingPathComponent:
+                    [NSString stringWithFormat:@"%@.plist",deviceIdentifiers[i]]];
             [combinedData writeToFile:path atomically:YES];
             if ([[NSFileManager defaultManager] isWritableFileAtPath:path]) {
-                NSLog(@"%@ writable",path);
+                NSLog(@"%@ writable\n",path);
             }else {
-                NSLog(@"%@ not writable",path);
+                NSLog(@"%@ not writable\n",path);
             }
-            
-            i++;
         }
     }];
     NSLog(@"Done writing.");
@@ -301,7 +306,6 @@
     pickerData = @[@"No devices."];
     selectedDeviceForFlashing = 0;
     [devicePicker reloadAllComponents];
-
 }
 
 - (IBAction)exitProgram:(id)sender {
@@ -320,6 +324,13 @@
     labelToChange.frame = CGRectMake( labelToChange.frame.origin.x, labelToChange.frame.origin.y,
                                       labelToChange.frame.size.width, labelSize.height);
     labelToChange.text = text;
+}
+
+- (void) initializeDataArrays {
+    self.accelerometerDataArrays = [NSMutableArray array];  // Arrays containing logs for each device.
+    self.gyroDataArrays = [NSMutableArray array];  // Arrays containing logs for each device.
+    self.deviceIdentifiers = [NSMutableArray array];
+    self.deviceInformation = [NSMutableArray array];
 }
 
 @end

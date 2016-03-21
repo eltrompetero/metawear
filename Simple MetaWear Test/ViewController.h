@@ -13,7 +13,6 @@
 @interface ViewController : UIViewController
 @property (strong, nonatomic) NSMutableArray *accelerometerDataArrays;
 @property (strong, nonatomic) NSMutableArray *gyroDataArrays;
-@property NSString *path;
 @property NSMutableArray *deviceIdentifiers;
 @property NSMutableArray *deviceInformation;
 @property (strong, atomic) CBCentralManager *bluetoothManager;
@@ -26,9 +25,15 @@
 
 - (IBAction)startSearch:(id)sender; 
 - (IBAction)startRecording:(id)sender;
+
 - (IBAction)refreshFoundMetaWearsLabel:(id)sender;
 - (IBAction)flashDevice:(id)sender;
-- (void)updateLabel : (NSString*)text : (UILabel*)label;
 - (void)centralManagerDidUpdateState:(CBCentralManager *)central;
+
+- (IBAction)stopRecording:(id)sender;
+- (IBAction)disconnectDevices:(id)sender;
+- (IBAction)exitProgram:(id)sender;
+
+- (void)updateLabel : (NSString*)text : (UILabel*)label;
 @end
 
