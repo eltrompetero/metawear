@@ -18,8 +18,8 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="EtI-XV-pAk">
-                                <rect key="frame" x="25" y="23" width="144" height="30"/>
-                                <state key="normal" title="Search for MetaWear"/>
+                                <rect key="frame" x="14" y="23" width="152" height="30"/>
+                                <state key="normal" title="Search for MetaWears"/>
                                 <connections>
                                     <action selector="startSearch:" destination="BYZ-38-t0r" eventType="touchUpInside" id="PoF-6J-aeh"/>
                                 </connections>
@@ -74,6 +74,21 @@
                                 <state key="normal" title="Refresh list"/>
                                 <connections>
                                     <action selector="refreshFoundMetaWearsLabel:" destination="BYZ-38-t0r" eventType="touchUpInside" id="Ipu-fl-gaP"/>
+                                </connections>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="2Oo-iy-qOf">
+                                <rect key="frame" x="17" y="430" width="154" height="30"/>
+                                <state key="normal" title="Disconnect all devices"/>
+                                <connections>
+                                    <action selector="disconnectDevices:" destination="BYZ-38-t0r" eventType="touchUpInside" id="Q5I-ic-nXT"/>
+                                </connections>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="OWJ-tv-lng">
+                                <rect key="frame" x="17" y="480" width="30" height="30"/>
+                                <state key="normal" title="Exit"/>
+                                <connections>
+                                    <action selector="exit:" destination="BYZ-38-t0r" eventType="touchUpInside" id="d52-Mx-MXY"/>
+                                    <action selector="exitProgram:" destination="BYZ-38-t0r" eventType="touchUpInside" id="xM2-BI-Veu"/>
                                 </connections>
                             </button>
                         </subviews>

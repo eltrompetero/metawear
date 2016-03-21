@@ -65,11 +65,18 @@
 }
 
 - (IBAction)startSearch:(id)sender {
-    __block int i=0;
+    //Erase list of devices. This is problematic because it runs asynchronously with the following block of code.
+//    [manager retrieveSavedMetaWearsWithHandler:^(NSArray* listOfDevices) {
+//        for (MBLMetaWear* device in listOfDevices) {
+//            [device forgetDevice];
+//        }
+//    }];
     
-    [manager startScanForMetaWearsAllowDuplicates:NO handler:^(NSArray *array) {
-        for (MBLMetaWear *foundDevice in array) {
-            //Exclude duplicates.
+    //Search for devices excluding duplicates.
+    //NOTE: Might be a good idea to exclude ones with weak signals.
+    [manager startScanForMetaWearsAllowDuplicates:NO handler:^(NSArray *listOfDevices) {
+        int i=0;
+        for (MBLMetaWear *foundDevice in listOfDevices) {
             //NOTE: will need to figure out proper naming scheme without collisions if you don't want to use identifiers
             if ([deviceIdentifiers indexOfObject:foundDevice.identifier.UUIDString]==NSNotFound) {
                 [foundDevice rememberDevice];
@@ -105,6 +112,7 @@
                 }
             }];
         }
+        [self refreshFoundMetaWearsLabel:self];
     }];
 }
 
@@ -159,6 +167,7 @@
         unsigned long int gyroCount,accelCount,count;
         
         for (MBLMetaWear *device in listOfDevices) {
+            //Stop streaming data.
             [device.accelerometer.dataReadyEvent stopNotificationsAsync];
             [device.gyro.dataReadyEvent stopNotificationsAsync];
             
@@ -200,6 +209,30 @@
     NSLog(@"Done writing.");
 }
 
+- (IBAction)disconnectDevices:(id)sender {
+    //NOTE: add HUD for preventing user interaction while disconnecting
+    //Disconnect.
+    [manager retrieveSavedMetaWearsWithHandler:^(NSArray *listOfDevices) {
+        for (MBLMetaWear *device in listOfDevices) {
+            [device disconnectWithHandler:^(NSError* error) {
+                if (error) {
+                    NSLog(@"Problems disconnecting.");
+                }
+                else {
+                    NSLog(@"Disconnected from %@",device.identifier.UUIDString);
+                }
+            }];
+        };
+        [self updateLabel:@"" :connectedDevicesLabel];
+    }];
+
+}
+
+- (IBAction)exitProgram:(id)sender {
+    //Disconnect devices before exiting.
+    [self disconnectDevices:self];
+    exit(0);
+}
 
 /*******************
  Helper functions
