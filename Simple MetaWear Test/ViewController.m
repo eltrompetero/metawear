@@ -8,13 +8,13 @@
 
 #import "ViewController.h"
 #import "MBProgressHUD.h"
-#define SAMPLE_FREQUENCY 100
 #define INITIAL_CAPACITY 100000
 
 @implementation ViewController
 {
     NSArray *pickerData;
     NSInteger selectedDeviceForFlashing;
+    int sampleFrequency;
 }
 @synthesize accelerometerDataArrays,gyroDataArrays;
 @synthesize foundMetaWearsLabels,connectedDevicesLabel;
@@ -28,9 +28,16 @@
     // Do any additional setup after loading the view, typically from a nib.
     scroller.scrollEnabled = YES;
     scroller.userInteractionEnabled = YES;
-    scroller.showsVerticalScrollIndicator = YES;
-    scroller.showsHorizontalScrollIndicator = YES;
-    scroller.contentSize = CGSizeMake(400,600);//width and height depends your scroll area
+//    scroller.showsVerticalScrollIndicator = YES;
+//    scroller.showsHorizontalScrollIndicator = NO;
+//    UIView *contentView;
+//    [scroller addSubview:contentView];
+//    scroller.contentSize = CGSizeMake(350,1000);//width and height depends your scroll area
+    
+    [_sampleFrequencySlider setValue:20];
+    [_sampleFrequencySlider setMaximumValue:100];
+    [_sampleFrequencySlider setMinimumValue:1];
+    [_sampleFrequencyLabel setText:@"20"];
     
     manager = [MBLMetaWearManager sharedManager];
     self.devicePicker.delegate = self;
@@ -193,6 +200,12 @@
     [devicePicker reloadAllComponents];
 }
 
+- (IBAction)change_sample_frequency:(id)sender {
+    sampleFrequency = (int) self.sampleFrequencySlider.value;
+    [_sampleFrequencySlider setValue:sampleFrequency animated:YES];
+    [_sampleFrequencyLabel setText:[NSString stringWithFormat:@"%d",sampleFrequency]];
+}
+
 - (IBAction)flashDevice:(id)sender {
     [manager retrieveSavedMetaWearsWithHandler:^(NSArray* listOfDevices) {
         if (selectedDeviceForFlashing==-1) {
@@ -218,10 +231,10 @@
             MBLAccelerometerBMI160 *accelerometer = (MBLAccelerometerBMI160*) currdevice.accelerometer;
             MBLGyroBMI160 *gyro = (MBLGyroBMI160*) currdevice.gyro;
             
-            accelerometer.sampleFrequency = SAMPLE_FREQUENCY;
+            accelerometer.sampleFrequency = sampleFrequency;
             accelerometer.fullScaleRange = MBLAccelerometerBMI160Range4G;
-            gyro.sampleFrequency = SAMPLE_FREQUENCY;
-            gyro.fullScaleRange = MBLGyroBMI160Range250;
+            gyro.sampleFrequency = sampleFrequency;
+            gyro.fullScaleRange = MBLGyroBMI160Range500;
             
             NSLog(@"Starting log of device %d",i);
             [currdevice.accelerometer.dataReadyEvent startNotificationsWithHandlerAsync:^(MBLAccelerometerData *obj, NSError *error) {
