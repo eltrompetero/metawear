@@ -7,7 +7,8 @@
 //
 
 #import "ViewController.h"
-#define SAMPLE_FREQUENCY 10
+#import "MBProgressHUD.h"
+#define SAMPLE_FREQUENCY 100
 #define INITIAL_CAPACITY 100000
 
 @implementation ViewController
@@ -30,7 +31,6 @@
     scroller.showsVerticalScrollIndicator = YES;
     scroller.showsHorizontalScrollIndicator = YES;
     scroller.contentSize = CGSizeMake(600,600);//width and height depends your scroll area
-
     
     manager = [MBLMetaWearManager sharedManager];
     self.devicePicker.delegate = self;
@@ -106,6 +106,9 @@
 //            [device forgetDevice];
 //        }
 //    }];
+    MBProgressHUD *hud = [MBProgressHUD showHUDAddedTo:[UIApplication sharedApplication].keyWindow animated:YES];
+    hud.mode = MBProgressHUDModeText;
+    hud.labelText = @"Searching...";
     
     //Search for devices excluding duplicates.
     //NOTE: Might be a good idea to exclude ones with weak signals.
@@ -126,9 +129,14 @@
         NSLog(@"MetaWears found:");
         NSLog(@"%@",[deviceIdentifiers componentsJoinedByString:@"\n"]);
     }];
+    [hud hide:YES afterDelay:0.5];
 }
 
 - (IBAction)connectToDevices:(id)sender {
+    MBProgressHUD *hud = [MBProgressHUD showHUDAddedTo:[UIApplication sharedApplication].keyWindow animated:YES];
+    hud.mode = MBProgressHUDModeText;
+    hud.labelText = @"Connecting...";
+    
     [manager retrieveSavedMetaWearsWithHandler:^(NSArray *array) {
         for (MBLMetaWear *currdevice in array) {
             // Connect to the device first.
@@ -158,9 +166,15 @@
         selectedDeviceForFlashing = 0;
         [devicePicker reloadAllComponents];
     }];
+    
+    [hud hide:YES afterDelay:0.5];
 }
 
 - (IBAction)refreshFoundMetaWearsLabel:(id)sender {
+    MBProgressHUD *hud = [MBProgressHUD showHUDAddedTo:[UIApplication sharedApplication].keyWindow animated:YES];
+    hud.mode = MBProgressHUDModeText;
+    hud.labelText = @"Refreshing...";
+    
     NSMutableString *info = [NSMutableString stringWithString: @""];
     [deviceIdentifiers removeAllObjects];
     
@@ -184,6 +198,8 @@
     pickerData = deviceIdentifiers;
     selectedDeviceForFlashing = 0;
     [devicePicker reloadAllComponents];
+    
+    [hud hide:YES afterDelay:0.5];
 }
 
 - (IBAction)flashDevice:(id)sender {
@@ -273,11 +289,11 @@
             }
             // Columns of [timeStamp,x,y,z,timeStamp,x,y,z].
             for (int j=0;j<count;j++ ) {
-                combinedData[j] = @[self.accelerometerDataArrays[i][j][0],
+                combinedData[j] = @[@([self.accelerometerDataArrays[i][j][0] timeIntervalSinceDate:self.accelerometerDataArrays[i][0][0]]),
                                     self.accelerometerDataArrays[i][j][1],
                                     self.accelerometerDataArrays[i][j][2],
                                     self.accelerometerDataArrays[i][j][3],
-                                    self.gyroDataArrays[i][j][0],
+                                    @([self.gyroDataArrays[i][j][0] timeIntervalSinceDate:self.gyroDataArrays[i][0][0]]),
                                     self.gyroDataArrays[i][j][1],
                                     self.gyroDataArrays[i][j][2],
                                     self.gyroDataArrays[i][j][3]];

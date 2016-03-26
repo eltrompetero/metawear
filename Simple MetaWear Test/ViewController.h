@@ -20,6 +20,7 @@
 @property (weak, nonatomic) IBOutlet UILabel *connectedDevicesLabel;
 @property (weak, nonatomic) IBOutlet UIPickerView *devicePicker;
 @property (weak, nonatomic) IBOutlet UIScrollView *scroller;
+@property (weak, nonatomic) IBOutlet UIScrollView *scroller;
 
 @property MBLMetaWearManager *manager;
 
