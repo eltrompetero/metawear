@@ -30,7 +30,7 @@
     scroller.userInteractionEnabled = YES;
     scroller.showsVerticalScrollIndicator = YES;
     scroller.showsHorizontalScrollIndicator = YES;
-    scroller.contentSize = CGSizeMake(600,600);//width and height depends your scroll area
+    scroller.contentSize = CGSizeMake(400,600);//width and height depends your scroll area
     
     manager = [MBLMetaWearManager sharedManager];
     self.devicePicker.delegate = self;
@@ -106,9 +106,7 @@
 //            [device forgetDevice];
 //        }
 //    }];
-    MBProgressHUD *hud = [MBProgressHUD showHUDAddedTo:[UIApplication sharedApplication].keyWindow animated:YES];
-    hud.mode = MBProgressHUDModeText;
-    hud.labelText = @"Searching...";
+    MBProgressHUD *hud = [self busyIndicator:@"Searching..."];
     
     //Search for devices excluding duplicates.
     //NOTE: Might be a good idea to exclude ones with weak signals.
@@ -128,14 +126,12 @@
         [self updateLabel: [deviceIdentifiers componentsJoinedByString:@"\n"] :foundMetaWearsLabels];
         NSLog(@"MetaWears found:");
         NSLog(@"%@",[deviceIdentifiers componentsJoinedByString:@"\n"]);
+        [hud hide:YES afterDelay:0.5];
     }];
-    [hud hide:YES afterDelay:0.5];
 }
 
 - (IBAction)connectToDevices:(id)sender {
-    MBProgressHUD *hud = [MBProgressHUD showHUDAddedTo:[UIApplication sharedApplication].keyWindow animated:YES];
-    hud.mode = MBProgressHUDModeText;
-    hud.labelText = @"Connecting...";
+    MBProgressHUD *hud = [self busyIndicator:@"Connecting..."];
     
     [manager retrieveSavedMetaWearsWithHandler:^(NSArray *array) {
         for (MBLMetaWear *currdevice in array) {
@@ -165,16 +161,12 @@
         pickerData = deviceIdentifiers;
         selectedDeviceForFlashing = 0;
         [devicePicker reloadAllComponents];
+        [hud hide:YES afterDelay:0.5];
     }];
-    
-    [hud hide:YES afterDelay:0.5];
 }
 
 - (IBAction)refreshFoundMetaWearsLabel:(id)sender {
-    MBProgressHUD *hud = [MBProgressHUD showHUDAddedTo:[UIApplication sharedApplication].keyWindow animated:YES];
-    hud.mode = MBProgressHUDModeText;
-    hud.labelText = @"Refreshing...";
-    
+    MBProgressHUD *hud = [self busyIndicator:@"Refreshing..."];
     NSMutableString *info = [NSMutableString stringWithString: @""];
     [deviceIdentifiers removeAllObjects];
     
@@ -192,14 +184,13 @@
         NSLog(@"Connected devices %@",info);
     } else {
         [self updateLabel: [deviceIdentifiers componentsJoinedByString:@"\n"] : connectedDevicesLabel];
-        NSLog(@"Connected devices %@",[deviceIdentifiers componentsJoinedByString:@"\n"]);
+        NSLog(@"Connected devices %@",
+              [deviceIdentifiers componentsJoinedByString:@"\n"]);
     }
-    
+    [hud hide:YES afterDelay:0.5];
     pickerData = deviceIdentifiers;
     selectedDeviceForFlashing = 0;
     [devicePicker reloadAllComponents];
-    
-    [hud hide:YES afterDelay:0.5];
 }
 
 - (IBAction)flashDevice:(id)sender {
@@ -214,6 +205,8 @@
 }
 
 - (IBAction)startRecording:(id)sender {
+    MBProgressHUD *hud = [self busyIndicator:@"Starting..."];
+    
     [manager retrieveSavedMetaWearsWithHandler:^(NSArray *listOfDevices) {
         int i = 0;
         for (MBLMetaWear *currdevice in listOfDevices) {
@@ -234,6 +227,7 @@
             [currdevice.accelerometer.dataReadyEvent startNotificationsWithHandlerAsync:^(MBLAccelerometerData *obj, NSError *error) {
                 if (error) {
                     NSLog(@"Error in accelerometer data.");
+                    [self disconnectedAlert:currdevice.identifier.UUIDString];
                     [self.accelerometerDataArrays[i] addObject:@[@"NaN",@"NaN",@"NaN",@"NaN"]];
                 } else {
                     [self.accelerometerDataArrays[i] addObject:
@@ -250,10 +244,13 @@
             }];
             i++;
         }
+        [hud hide:YES afterDelay:0.5];
     }];
 }
 
 - (IBAction)stopRecording:(id)sender {
+    MBProgressHUD *hud = [self busyIndicator:@"Stopping..."];
+    
     [manager retrieveSavedMetaWearsWithHandler:^(NSArray *listOfDevices) {
         int i=0;
         for (MBLMetaWear *device in listOfDevices) {
@@ -263,10 +260,13 @@
             NSLog(@"Stopping record %i",i);
             i++;
         }
+        [hud hide:YES afterDelay:0.5];
     }];
 }
 
 - (IBAction)saveFiles:(id)sender {
+    MBProgressHUD *hud = [self busyIndicator:@"Saving..."];
+    
     [self stopRecording:self];
     
     NSLog(@"Writing files...");
@@ -309,12 +309,14 @@
                 NSLog(@"%@ not writable\n",path);
             }
         }
+        [hud hide:YES afterDelay:0.5];
     }];
     NSLog(@"Done writing.");
 }
 
 - (IBAction)disconnectDevices:(id)sender {
-    //NOTE: add HUD for preventing user interaction while disconnecting
+    MBProgressHUD *hud = [self busyIndicator:@"Disconnecting..."];
+    
     //Disconnect.
     [manager retrieveSavedMetaWearsWithHandler:^(NSArray *listOfDevices) {
         for (MBLMetaWear *device in listOfDevices) {
@@ -333,6 +335,7 @@
     pickerData = @[@"No devices."];
     selectedDeviceForFlashing = 0;
     [devicePicker reloadAllComponents];
+    [hud hide:YES afterDelay:0.5];
 }
 
 - (IBAction)exitProgram:(id)sender {
@@ -358,6 +361,26 @@
     self.gyroDataArrays = [NSMutableArray array];  // Arrays containing logs for each device.
     self.deviceIdentifiers = [NSMutableArray array];
     self.deviceInformation = [NSMutableArray array];
+}
+
+- (MBProgressHUD *)busyIndicator:(NSString *)message {
+    MBProgressHUD *hud = [MBProgressHUD showHUDAddedTo:[UIApplication sharedApplication].keyWindow animated:YES];
+    hud.mode = MBProgressHUDModeText;
+    hud.userInteractionEnabled=NO;
+    hud.dimBackground=YES;
+    hud.labelText = message;
+    return hud;
+}
+
+- (void)disconnectedAlert:(NSString*)deviceId {
+    UIAlertController *alert = [UIAlertController
+                                alertControllerWithTitle:@"Device disconnected"
+                                message:deviceId
+                                preferredStyle:UIAlertControllerStyleAlert];
+    UIAlertAction *closeAction = [UIAlertAction actionWithTitle:@"Close" style:
+                                  UIAlertActionStyleDefault handler:nil];
+    [alert addAction:closeAction];
+    [self presentViewController:alert animated:NO completion:nil];
 }
 
 @end
