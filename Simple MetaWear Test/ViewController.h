@@ -16,8 +16,9 @@
 @property NSMutableArray *deviceIdentifiers;
 @property NSMutableArray *deviceInformation;
 @property (strong, atomic) CBCentralManager *bluetoothManager;
-@property (weak, nonatomic) IBOutlet UILabel *foundMetaWearsLabels;
 @property (weak, nonatomic) IBOutlet UILabel *connectedDevicesLabel;
+
+@property (weak, nonatomic) IBOutlet UITableView *selectDevicesTable;
 @property (weak, nonatomic) IBOutlet UIPickerView *devicePicker;
 @property (weak, nonatomic) IBOutlet UIScrollView *scroller;
 @property (weak, nonatomic) IBOutlet UILabel *sampleFrequencyLabel;

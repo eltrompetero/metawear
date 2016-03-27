@@ -8,6 +8,7 @@
 
 #import "ViewController.h"
 #import "MBProgressHUD.h"
+#import "SmallTableViewController.h"
 #define INITIAL_CAPACITY 100000
 
 @implementation ViewController
@@ -15,9 +16,10 @@
     NSArray *pickerData;
     NSInteger selectedDeviceForFlashing;
     int sampleFrequency;
+    NSMutableArray *connectedDevices;
 }
 @synthesize accelerometerDataArrays,gyroDataArrays;
-@synthesize foundMetaWearsLabels,connectedDevicesLabel;
+@synthesize connectedDevicesLabel;
 @synthesize manager,deviceIdentifiers,deviceInformation;
 @synthesize bluetoothManager;
 @synthesize devicePicker;
@@ -31,6 +33,10 @@
     scroller.showsVerticalScrollIndicator = YES;
     scroller.contentSize = CGSizeMake(350,2000);//width and height depends your scroll area
     
+    _selectDevicesTable.allowsMultipleSelection=YES;
+    [_selectDevicesTable setDelegate:self];
+    [_selectDevicesTable setDataSource:self];
+    
     [_sampleFrequencySlider setValue:20];
     [_sampleFrequencySlider setMaximumValue:100];
     [_sampleFrequencySlider setMinimumValue:1];
@@ -42,7 +48,6 @@
     selectedDeviceForFlashing = -1;
     
     //Allow any number of lines in labels.
-    foundMetaWearsLabels.numberOfLines = 0;
     connectedDevicesLabel.numberOfLines = 0;
     
     //Initialize data arrays.
@@ -56,6 +61,7 @@
                              queue:nil
                              options:[NSDictionary dictionaryWithObject:[NSNumber numberWithInt:0]
                              forKey:CBCentralManagerOptionShowPowerAlertKey]];
+    [_selectDevicesTable reloadData];
 }
 
 - (void)centralManagerDidUpdateState:(CBCentralManager *)central {
@@ -82,6 +88,52 @@
     // Dispose of any resources that can be recreated.
 }
 
+// ---------------------------------
+// Table. --------------------------
+// ---------------------------------
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    UITableViewCell *tableViewCell = [tableView cellForRowAtIndexPath:indexPath];
+    tableViewCell.accessoryView.hidden = NO;
+    // if you don't use a custom image then tableViewCell.accessoryType = UITableViewCellAccessoryCheckmark;
+}
+
+- (void)tableView:(UITableView *)tableView didDeselectRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    UITableViewCell *tableViewCell = [tableView cellForRowAtIndexPath:indexPath];
+    tableViewCell.accessoryView.hidden = YES;
+    // if you don't use a custom image then tableViewCell.accessoryType = UITableViewCellAccessoryNone;
+}
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
+{
+    // Return the number of sections.
+    // If You have only one(1) section, return 1, otherwise you must handle sections
+    return 1;
+}
+
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
+{
+    // Return the number of rows in the section.
+    return [deviceIdentifiers count];
+}
+
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    static NSString *CellIdentifier = @"Cell";
+    
+    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier];
+    if (cell == nil) {
+        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier];
+    }
+    
+    // Configure the cell...
+    cell.textLabel.text = [NSString stringWithFormat:[deviceIdentifiers objectAtIndex:indexPath.row]];
+    
+    return cell;
+}
+
+
+// Picker delegate functions.
 - (int)numberOfComponentsInPickerView:(UIPickerView*) pickerView {
     return 1;
 }
@@ -103,6 +155,8 @@
     selectedDeviceForFlashing = row;
 }
 
+
+// Buttons.
 - (IBAction)startSearch:(id)sender {
     //Erase list of devices. This is problematic because it runs asynchronously with the following block of code.
 //    [manager retrieveSavedMetaWearsWithHandler:^(NSArray* listOfDevices) {
@@ -127,39 +181,50 @@
         }
         
         // List found metaWears.
-        [self updateLabel: [deviceIdentifiers componentsJoinedByString:@"\n"] :foundMetaWearsLabels];
         NSLog(@"MetaWears found:");
         NSLog(@"%@",[deviceIdentifiers componentsJoinedByString:@"\n"]);
         [hud hide:YES afterDelay:0.5];
+        [_selectDevicesTable reloadData];
     }];
 }
 
 - (IBAction)connectToDevices:(id)sender {
     MBProgressHUD *hud = [self busyIndicator:@"Connecting..."];
+    NSArray *indexPathArray = [_selectDevicesTable indexPathsForSelectedRows];
+    NSMutableArray *selectedDeviceIdentifiers = [[NSMutableArray alloc] init];
     
+    // Get the devices that have been selected for connection.
+    for (NSIndexPath *i in indexPathArray) {
+        [selectedDeviceIdentifiers addObject: [deviceIdentifiers objectAtIndex:i.row]];
+    }
+    
+    // Only connected to selected devices.
     [manager retrieveSavedMetaWearsWithHandler:^(NSArray *array) {
         for (MBLMetaWear *currdevice in array) {
             // Connect to the device first.
             // connectWithTimeout:handler: is a simple way to limit the amount of
             // time spent searching for the device
-            [currdevice connectWithTimeout:20 handler:^(NSError *error) {
-                if ([error.domain isEqualToString:kMBLErrorDomain] &&
-                    error.code == kMBLErrorConnectionTimeout) {
-                    [currdevice forgetDevice];
-                    NSLog(@"Connection Timeout");
-                }
-                else {
-                    NSLog(@"Connection succeeded with %@.",currdevice.identifier.UUIDString);
-                    [currdevice readBatteryLifeWithHandler:^(NSNumber *bl,NSError *error) {
-                        if (error) {
-                            bl = [NSNumber numberWithInt:-1];
-                            NSLog(@"Error in reading battery life.");
-                        }
-                        [deviceInformation addObject: bl];
-                    }];
-                    [currdevice.led flashLEDColorAsync:[UIColor greenColor] withIntensity:1.0 numberOfFlashes:2];
-                }
-            }];
+            if ([selectedDeviceIdentifiers containsObject:currdevice.identifier.UUIDString]) {
+                [currdevice connectWithTimeout:20 handler:^(NSError *error) {
+                    if ([error.domain isEqualToString:kMBLErrorDomain] &&
+                        error.code == kMBLErrorConnectionTimeout) {
+                        [currdevice forgetDevice];
+                        NSLog(@"Connection Timeout");
+                    }
+                    else {
+                        NSLog(@"Connection succeeded with %@.",currdevice.identifier.UUIDString);
+                        [currdevice readBatteryLifeWithHandler:^(NSNumber *bl,NSError *error) {
+                            if (error) {
+                                bl = [NSNumber numberWithInt:-1];
+                                NSLog(@"Error in reading battery life.");
+                            }
+                            [deviceInformation addObject: bl];
+                        }];
+                        [currdevice.led flashLEDColorAsync:[UIColor greenColor] withIntensity:1.0 numberOfFlashes:2];
+                        [connectedDevices addObject:currdevice.identifier.UUIDString];
+                    }
+                }];
+            }//endif
         }
         [self refreshFoundMetaWearsLabel:self];
         pickerData = deviceIdentifiers;
@@ -336,6 +401,7 @@
                 }
                 else {
                     NSLog(@"Disconnected from %@",device.identifier.UUIDString);
+                    [connectedDevices removeObject:device.identifier.UUIDString];
                 }
             }];
         };
@@ -345,6 +411,7 @@
     pickerData = @[@"No devices."];
     selectedDeviceForFlashing = 0;
     [devicePicker reloadAllComponents];
+    [self clearTable];
     [hud hide:YES afterDelay:0.5];
 }
 
@@ -371,6 +438,7 @@
     self.gyroDataArrays = [NSMutableArray array];  // Arrays containing logs for each device.
     self.deviceIdentifiers = [NSMutableArray array];
     self.deviceInformation = [NSMutableArray array];
+    connectedDevices = [NSMutableArray array];
 }
 
 - (MBProgressHUD *)busyIndicator:(NSString *)message {
@@ -391,6 +459,12 @@
                                   UIAlertActionStyleDefault handler:nil];
     [alert addAction:closeAction];
     [self presentViewController:alert animated:NO completion:nil];
+}
+
+- (void)clearTable {
+    for (NSIndexPath *i in [_selectDevicesTable indexPathsForSelectedRows]) {
+        [_selectDevicesTable deselectRowAtIndexPath:i animated:NO];
+    }
 }
 
 @end

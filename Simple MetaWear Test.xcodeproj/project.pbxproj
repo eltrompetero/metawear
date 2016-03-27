@@ -19,6 +19,7 @@
 		2C8E465F1C80102800846968 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2C8E465E1C80102800846968 /* UIKit.framework */; };
 		2C8E46611C80103300846968 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2C8E46601C80103300846968 /* Foundation.framework */; };
 		2C8E46631C8011BF00846968 /* MetaWear.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2C8E46621C8011BF00846968 /* MetaWear.framework */; };
+		2CA168811CA767C400D366B7 /* SmallTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA168801CA767C400D366B7 /* SmallTableViewController.m */; };
 		AF0EC3F6ED00D4A777724D27 /* libPods-Simple MetaWear Test.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 51E59675509508A0EAB942C0 /* libPods-Simple MetaWear Test.a */; };
 /* End PBXBuildFile section */
 
@@ -51,6 +52,8 @@
 		2C8E465E1C80102800846968 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		2C8E46601C80103300846968 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		2C8E46621C8011BF00846968 /* MetaWear.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = MetaWear.framework; sourceTree = "<group>"; };
+		2CA1687F1CA7677000D366B7 /* SmallTableViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SmallTableViewController.h; sourceTree = "<group>"; };
+		2CA168801CA767C400D366B7 /* SmallTableViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SmallTableViewController.m; sourceTree = "<group>"; };
 		51E59675509508A0EAB942C0 /* libPods-Simple MetaWear Test.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-Simple MetaWear Test.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		5F43BED0D7CC87609EA2647E /* Pods-Simple MetaWear Test.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Simple MetaWear Test.release.xcconfig"; path = "Pods/Target Support Files/Pods-Simple MetaWear Test/Pods-Simple MetaWear Test.release.xcconfig"; sourceTree = "<group>"; };
 		89F7247D7B24E1E2A482B474 /* Pods-Simple MetaWear Test.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Simple MetaWear Test.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Simple MetaWear Test/Pods-Simple MetaWear Test.debug.xcconfig"; sourceTree = "<group>"; };
@@ -106,6 +109,8 @@
 		2C8E46381C8009D900846968 /* Simple MetaWear Test */ = {
 			isa = PBXGroup;
 			children = (
+				2CA1687F1CA7677000D366B7 /* SmallTableViewController.h */,
+				2CA168801CA767C400D366B7 /* SmallTableViewController.m */,
 				2C8E463C1C8009D900846968 /* AppDelegate.h */,
 				2C8E463D1C8009D900846968 /* AppDelegate.m */,
 				2C8E463F1C8009D900846968 /* ViewController.h */,
@@ -309,6 +314,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				2C8E46411C8009D900846968 /* ViewController.m in Sources */,
+				2CA168811CA767C400D366B7 /* SmallTableViewController.m in Sources */,
 				2C8E463E1C8009D900846968 /* AppDelegate.m in Sources */,
 				2C8E463B1C8009D900846968 /* main.m in Sources */,
 			);
