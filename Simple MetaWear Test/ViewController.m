@@ -28,11 +28,8 @@
     // Do any additional setup after loading the view, typically from a nib.
     scroller.scrollEnabled = YES;
     scroller.userInteractionEnabled = YES;
-//    scroller.showsVerticalScrollIndicator = YES;
-//    scroller.showsHorizontalScrollIndicator = NO;
-//    UIView *contentView;
-//    [scroller addSubview:contentView];
-//    scroller.contentSize = CGSizeMake(350,1000);//width and height depends your scroll area
+    scroller.showsVerticalScrollIndicator = YES;
+    scroller.contentSize = CGSizeMake(350,2000);//width and height depends your scroll area
     
     [_sampleFrequencySlider setValue:20];
     [_sampleFrequencySlider setMaximumValue:100];
