@@ -9,7 +9,8 @@
 #import "ViewController.h"
 #import "MBProgressHUD.h"
 #import "SmallTableViewController.h"
-#define INITIAL_CAPACITY 100000
+#define INITIAL_CAPACITY 20000
+#define DEFAULT_SAMPLE_FREQUENCY 20
 
 @implementation ViewController
 {
@@ -25,6 +26,10 @@
 @synthesize devicePicker;
 @synthesize scroller;
 
+
+/*************************
+ View controller delegate
+ *************************/
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view, typically from a nib.
@@ -40,8 +45,8 @@
     [_sampleFrequencySlider setValue:20];
     [_sampleFrequencySlider setMaximumValue:100];
     [_sampleFrequencySlider setMinimumValue:1];
-    [_sampleFrequencyLabel setText:@"20"];
-    sampleFrequency=20;
+    [_sampleFrequencyLabel setText:[NSString stringWithFormat:@"%d",DEFAULT_SAMPLE_FREQUENCY]];
+    sampleFrequency=DEFAULT_SAMPLE_FREQUENCY;
     
     manager = [MBLMetaWearManager sharedManager];
     self.devicePicker.delegate = self;
@@ -89,9 +94,10 @@
     // Dispose of any resources that can be recreated.
 }
 
-// ---------------------------------
-// Table. --------------------------
-// ---------------------------------
+
+/*******************
+ Table delegate
+ ********************/
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
     UITableViewCell *tableViewCell = [tableView cellForRowAtIndexPath:indexPath];
@@ -128,19 +134,21 @@
     }
     
     // Configure the cell...
-    cell.textLabel.text = [NSString stringWithFormat:[deviceIdentifiers objectAtIndex:indexPath.row]];
+    cell.textLabel.text = [NSString stringWithFormat:@"%@",[deviceIdentifiers objectAtIndex:indexPath.row]];
     
     return cell;
 }
 
 
-// Picker delegate functions.
+/*******************
+ Picker delegate
+ ********************/
 - (int)numberOfComponentsInPickerView:(UIPickerView*) pickerView {
     return 1;
 }
 
 - (int)pickerView:(UIPickerView*) pickerView numberOfRowsInComponent:(NSInteger)component {
-    return pickerData.count;
+    return (int)pickerData.count;
 }
 
 - (NSString*)pickerView:(UIPickerView *)pickerView
@@ -165,7 +173,9 @@
 }
 
 
-// Buttons.
+/*******************
+       Buttons
+ ********************/
 - (IBAction)startSearch:(id)sender {
     //Erase list of devices. This is problematic because it runs asynchronously with the following block of code.
 //    [manager retrieveSavedMetaWearsWithHandler:^(NSArray* listOfDevices) {
@@ -424,6 +434,7 @@
     [self disconnectDevices:self];
     exit(0);
 }
+
 
 /*******************
  Helper functions

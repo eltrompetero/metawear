@@ -29,7 +29,7 @@
 - (IBAction)startSearch:(id)sender; 
 - (IBAction)startRecording:(id)sender;
 
-- (IBAction)refreshFoundMetaWearsLabel:(id)sender;
+- (IBAction)refreshConnectedMetaWearsLabel:(id)sender;
 - (IBAction)flashDevice:(id)sender;
 - (void)centralManagerDidUpdateState:(CBCentralManager *)central;
 
