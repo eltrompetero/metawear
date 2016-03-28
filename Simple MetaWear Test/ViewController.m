@@ -41,6 +41,7 @@
     [_sampleFrequencySlider setMaximumValue:100];
     [_sampleFrequencySlider setMinimumValue:1];
     [_sampleFrequencyLabel setText:@"20"];
+    sampleFrequency=20;
     
     manager = [MBLMetaWearManager sharedManager];
     self.devicePicker.delegate = self;
@@ -244,7 +245,6 @@
 
 - (IBAction)refreshConnectedMetaWearsLabel:(id)sender {
     MBProgressHUD *hud = [self busyIndicator:@"Refreshing..."];
-    NSMutableString *info = [NSMutableString stringWithString: @""];
     [deviceIdentifiers removeAllObjects];
     
     [manager retrieveSavedMetaWearsWithHandler:^(NSArray *listOfDevices) {
@@ -346,6 +346,8 @@
     NSLog(@"Writing files...");
     NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
     NSString *documentsDirectory = [paths objectAtIndex:0];
+    NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
+    [dateFormatter setDateFormat:@"yyyy-MM-dd'T'HH:mm:ss.SSS"];
     
     [manager retrieveSavedMetaWearsWithHandler:^(NSArray *listOfDevices) {
         unsigned long int gyroCount,accelCount,count;
@@ -363,14 +365,16 @@
             }
             // Columns of [timeStamp,x,y,z,timeStamp,x,y,z].
             for (int j=0;j<count;j++ ) {
-                combinedData[j] = @[@([self.accelerometerDataArrays[i][j][0] timeIntervalSinceDate:self.accelerometerDataArrays[i][0][0]]),
-                                    self.accelerometerDataArrays[i][j][1],
-                                    self.accelerometerDataArrays[i][j][2],
-                                    self.accelerometerDataArrays[i][j][3],
-                                    @([self.gyroDataArrays[i][j][0] timeIntervalSinceDate:self.gyroDataArrays[i][0][0]]),
-                                    self.gyroDataArrays[i][j][1],
-                                    self.gyroDataArrays[i][j][2],
-                                    self.gyroDataArrays[i][j][3]];
+                combinedData[j] =@[
+                    [dateFormatter stringFromDate:self.accelerometerDataArrays[i][j][0]],
+                    self.accelerometerDataArrays[i][j][1],
+                    self.accelerometerDataArrays[i][j][2],
+                    self.accelerometerDataArrays[i][j][3],
+                    [dateFormatter stringFromDate:self.gyroDataArrays[i][j][0]],
+                    self.gyroDataArrays[i][j][1],
+                    self.gyroDataArrays[i][j][2],
+                    self.gyroDataArrays[i][j][3]
+                    ];
             }
             
             // Write data to file.
