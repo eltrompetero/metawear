@@ -21,111 +21,111 @@
                                 <rect key="frame" x="-1" y="15" width="350" height="1000"/>
                                 <subviews>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="No devices." textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="xwv-2A-SnB">
-                                        <rect key="frame" x="8" y="248" width="393" height="109"/>
+                                        <rect key="frame" x="8" y="376" width="393" height="109"/>
                                         <fontDescription key="fontDescription" type="system" pointSize="9"/>
                                         <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                                         <nil key="highlightedColor"/>
                                     </label>
                                     <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="EtI-XV-pAk">
-                                        <rect key="frame" x="8" y="35" width="152" height="30"/>
+                                        <rect key="frame" x="8" y="18" width="152" height="30"/>
                                         <state key="normal" title="Search for MetaWears"/>
                                         <connections>
                                             <action selector="startSearch:" destination="BYZ-38-t0r" eventType="touchUpInside" id="PoF-6J-aeh"/>
                                         </connections>
                                     </button>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="List of found MetaWears" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="VBh-Ru-egZ">
-                                        <rect key="frame" x="8" y="63" width="186" height="21"/>
+                                        <rect key="frame" x="8" y="46" width="186" height="21"/>
                                         <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                         <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                                         <nil key="highlightedColor"/>
                                     </label>
                                     <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Jil-RF-2th">
-                                        <rect key="frame" x="8" y="575" width="104" height="30"/>
+                                        <rect key="frame" x="8" y="703" width="104" height="30"/>
                                         <state key="normal" title="Start recording"/>
                                         <connections>
                                             <action selector="startRecording:" destination="BYZ-38-t0r" eventType="touchUpInside" id="dZI-O8-lNa"/>
                                         </connections>
                                     </button>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Connected to:" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="bf3-Mu-bWe">
-                                        <rect key="frame" x="8" y="224" width="109" height="21"/>
+                                        <rect key="frame" x="8" y="352" width="109" height="21"/>
                                         <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                         <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                                         <nil key="highlightedColor"/>
                                     </label>
                                     <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="6gn-Vv-v6I">
-                                        <rect key="frame" x="134" y="575" width="102" height="30"/>
+                                        <rect key="frame" x="134" y="703" width="102" height="30"/>
                                         <state key="normal" title="Stop recording"/>
                                         <connections>
                                             <action selector="stopRecording:" destination="BYZ-38-t0r" eventType="touchUpInside" id="fUc-cx-VEh"/>
                                         </connections>
                                     </button>
                                     <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="0Li-O9-rN5">
-                                        <rect key="frame" x="162" y="193" width="77" height="30"/>
+                                        <rect key="frame" x="162" y="321" width="77" height="30"/>
                                         <state key="normal" title="Refresh list"/>
                                         <connections>
-                                            <action selector="refreshFoundMetaWearsLabel:" destination="BYZ-38-t0r" eventType="touchUpInside" id="Ipu-fl-gaP"/>
+                                            <action selector="refreshConnectedMetaWearsLabel:" destination="BYZ-38-t0r" eventType="touchUpInside" id="i6n-6Y-Rpb"/>
                                         </connections>
                                     </button>
                                     <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="2Oo-iy-qOf">
-                                        <rect key="frame" x="8" y="622" width="154" height="30"/>
+                                        <rect key="frame" x="8" y="750" width="154" height="30"/>
                                         <state key="normal" title="Disconnect all devices"/>
                                         <connections>
                                             <action selector="disconnectDevices:" destination="BYZ-38-t0r" eventType="touchUpInside" id="Q5I-ic-nXT"/>
                                         </connections>
                                     </button>
                                     <pickerView contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="GoA-2f-ik7">
-                                        <rect key="frame" x="4" y="504" width="265" height="51"/>
+                                        <rect key="frame" x="4" y="632" width="265" height="51"/>
                                     </pickerView>
                                     <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="T3B-Wh-MNi">
-                                        <rect key="frame" x="277" y="515" width="37" height="30"/>
+                                        <rect key="frame" x="277" y="643" width="37" height="30"/>
                                         <state key="normal" title="Flash"/>
                                         <connections>
                                             <action selector="flashDevice:" destination="BYZ-38-t0r" eventType="touchUpInside" id="SwE-Kq-wdb"/>
                                         </connections>
                                     </button>
                                     <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="RG6-0f-v6a">
-                                        <rect key="frame" x="255" y="575" width="34" height="30"/>
+                                        <rect key="frame" x="255" y="703" width="34" height="30"/>
                                         <state key="normal" title="Save"/>
                                         <connections>
                                             <action selector="saveFiles:" destination="BYZ-38-t0r" eventType="touchUpInside" id="77K-9G-rr1"/>
                                         </connections>
                                     </button>
                                     <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="2kl-wY-a06">
-                                        <rect key="frame" x="8" y="193" width="133" height="30"/>
+                                        <rect key="frame" x="8" y="321" width="133" height="30"/>
                                         <state key="normal" title="Connect to devices"/>
                                         <connections>
                                             <action selector="connectToDevices:" destination="BYZ-38-t0r" eventType="touchUpInside" id="19N-9S-IDt"/>
                                         </connections>
                                     </button>
                                     <slider opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" value="0.5" minValue="0.0" maxValue="1" translatesAutoresizingMaskIntoConstraints="NO" id="efc-d9-A3e">
-                                        <rect key="frame" x="21" y="451" width="265" height="31"/>
+                                        <rect key="frame" x="21" y="579" width="265" height="31"/>
                                         <connections>
                                             <action selector="change_sample_frequency:" destination="BYZ-38-t0r" eventType="touchUpInside" id="dQo-rj-Z8F"/>
                                             <action selector="change_sample_frequency:" destination="BYZ-38-t0r" eventType="valueChanged" id="ejs-BT-ygP"/>
                                         </connections>
                                     </slider>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="O3X-6I-UDO">
-                                        <rect key="frame" x="178" y="422" width="42" height="21"/>
+                                        <rect key="frame" x="178" y="550" width="42" height="21"/>
                                         <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                         <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                                         <nil key="highlightedColor"/>
                                     </label>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Sample frequency:" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Epr-My-hR9">
-                                        <rect key="frame" x="11" y="422" width="144" height="21"/>
+                                        <rect key="frame" x="11" y="550" width="144" height="21"/>
                                         <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                         <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                                         <nil key="highlightedColor"/>
                                     </label>
                                     <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="OWJ-tv-lng">
-                                        <rect key="frame" x="8" y="660" width="30" height="30"/>
+                                        <rect key="frame" x="8" y="788" width="30" height="30"/>
                                         <state key="normal" title="Exit"/>
                                         <connections>
                                             <action selector="exit:" destination="BYZ-38-t0r" eventType="touchUpInside" id="d52-Mx-MXY"/>
                                             <action selector="exitProgram:" destination="BYZ-38-t0r" eventType="touchUpInside" id="xM2-BI-Veu"/>
                                         </connections>
                                     </button>
-                                    <tableView clipsSubviews="YES" contentMode="scaleToFill" fixedFrame="YES" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="15" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="Dmk-1V-KOY">
-                                        <rect key="frame" x="8" y="83" width="244" height="122"/>
+                                    <tableView clipsSubviews="YES" contentMode="scaleToFill" fixedFrame="YES" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="20" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="Dmk-1V-KOY">
+                                        <rect key="frame" x="8" y="75" width="244" height="238"/>
                                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                         <connections>
                                             <outlet property="dataSource" destination="BYZ-38-t0r" id="zBy-GS-WmZ"/>

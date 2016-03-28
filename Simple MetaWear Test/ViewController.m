@@ -155,6 +155,14 @@
     selectedDeviceForFlashing = row;
 }
 
+- (void)refresh_picker {
+    if ([connectedDevices count]>0) {
+        pickerData = connectedDevices;
+        [devicePicker reloadAllComponents];
+        selectedDeviceForFlashing = 0;
+    }
+}
+
 
 // Buttons.
 - (IBAction)startSearch:(id)sender {
@@ -192,6 +200,7 @@
     MBProgressHUD *hud = [self busyIndicator:@"Connecting..."];
     NSArray *indexPathArray = [_selectDevicesTable indexPathsForSelectedRows];
     NSMutableArray *selectedDeviceIdentifiers = [[NSMutableArray alloc] init];
+    [connectedDevices removeAllObjects];
     
     // Get the devices that have been selected for connection.
     for (NSIndexPath *i in indexPathArray) {
@@ -224,17 +233,16 @@
                         [connectedDevices addObject:currdevice.identifier.UUIDString];
                     }
                 }];
+                [self refreshConnectedMetaWearsLabel:self];
             }//endif
         }
-        [self refreshFoundMetaWearsLabel:self];
-        pickerData = deviceIdentifiers;
-        selectedDeviceForFlashing = 0;
-        [devicePicker reloadAllComponents];
-        [hud hide:YES afterDelay:0.5];
+        
+        [self refresh_picker];
+        [hud hide:YES afterDelay:5.];
     }];
 }
 
-- (IBAction)refreshFoundMetaWearsLabel:(id)sender {
+- (IBAction)refreshConnectedMetaWearsLabel:(id)sender {
     MBProgressHUD *hud = [self busyIndicator:@"Refreshing..."];
     NSMutableString *info = [NSMutableString stringWithString: @""];
     [deviceIdentifiers removeAllObjects];
@@ -243,23 +251,14 @@
         for (MBLMetaWear *device in listOfDevices) {
             [deviceIdentifiers addObject:device.identifier.UUIDString];
         }
+        NSLog(@"Connected devices %@",[deviceIdentifiers componentsJoinedByString:@"\n"]);
     }];
     
-    if ([deviceIdentifiers count]==[deviceInformation count]) {
-        for (int i=0; i<[deviceIdentifiers count]; i++) {
-            [info appendFormat: @"%@ (%@)\n",deviceIdentifiers[i],deviceInformation[i]];
-        }
-        [self updateLabel: info : connectedDevicesLabel];
-        NSLog(@"Connected devices %@",info);
-    } else {
-        [self updateLabel: [deviceIdentifiers componentsJoinedByString:@"\n"] : connectedDevicesLabel];
-        NSLog(@"Connected devices %@",
-              [deviceIdentifiers componentsJoinedByString:@"\n"]);
-    }
-    [hud hide:YES afterDelay:0.5];
-    pickerData = deviceIdentifiers;
+    // Update list of connected devices in label.
+    [self updateLabel: [connectedDevices componentsJoinedByString:@"\n"] : connectedDevicesLabel];
+    [hud hide:YES afterDelay:.5];
+    [self refresh_picker];
     selectedDeviceForFlashing = 0;
-    [devicePicker reloadAllComponents];
 }
 
 - (IBAction)change_sample_frequency:(id)sender {
@@ -376,7 +375,8 @@
             
             // Write data to file.
             NSString *path = [documentsDirectory stringByAppendingPathComponent:
-                    [NSString stringWithFormat:@"%@.plist",deviceIdentifiers[i]]];
+                    [NSString stringWithFormat:@"%@_sample%d.plist",
+                     deviceIdentifiers[i],sampleFrequency]];
             [combinedData writeToFile:path atomically:YES];
             if ([[NSFileManager defaultManager] isWritableFileAtPath:path]) {
                 NSLog(@"%@ writable\n",path);
@@ -391,6 +391,7 @@
 
 - (IBAction)disconnectDevices:(id)sender {
     MBProgressHUD *hud = [self busyIndicator:@"Disconnecting..."];
+    [connectedDevices removeAllObjects];
     
     //Disconnect.
     [manager retrieveSavedMetaWearsWithHandler:^(NSArray *listOfDevices) {
@@ -401,7 +402,6 @@
                 }
                 else {
                     NSLog(@"Disconnected from %@",device.identifier.UUIDString);
-                    [connectedDevices removeObject:device.identifier.UUIDString];
                 }
             }];
         };
