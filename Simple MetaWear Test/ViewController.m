@@ -15,7 +15,6 @@
 @implementation ViewController
 {
     NSArray *pickerData;
-    NSInteger selectedDeviceForFlashing;
     int sampleFrequency;
     NSMutableArray *connectedDevices;
 }
@@ -51,7 +50,6 @@
     manager = [MBLMetaWearManager sharedManager];
     self.devicePicker.delegate = self;
     pickerData = @[@"No devices."];
-    selectedDeviceForFlashing = -1;
     
     //Allow any number of lines in labels.
     connectedDevicesLabel.numberOfLines = 0;
@@ -161,14 +159,13 @@
 - (void)pickerView:(UIPickerView *)pickerView didSelectRow:(NSInteger)row inComponent:(NSInteger)component
 {
     NSLog(@"Selected %ldth device.",(long)row);
-    selectedDeviceForFlashing = row;
 }
 
 - (void)refresh_picker {
     if ([connectedDevices count]>0) {
         pickerData = connectedDevices;
+        NSLog(@"Picker connected devices %@",[connectedDevices componentsJoinedByString:@"\n"]);
         [devicePicker reloadAllComponents];
-        selectedDeviceForFlashing = 0;
     }
 }
 
@@ -214,7 +211,9 @@
     [connectedDevices removeAllObjects];
     
     // Get the devices that have been selected for connection.
+    NSLog(@"Devices selected for connection are at following rows:");
     for (NSIndexPath *i in indexPathArray) {
+        NSLog(@"%d",(int)i.row);
         [selectedDeviceIdentifiers addObject: [deviceIdentifiers objectAtIndex:i.row]];
     }
     
@@ -266,23 +265,39 @@
     
     // Update list of connected devices in label.
     [self updateLabel: [connectedDevices componentsJoinedByString:@"\n"] : connectedDevicesLabel];
+    NSLog(@"Connected devices after update %@",[deviceIdentifiers componentsJoinedByString:@"\n"]);
     [hud hide:YES afterDelay:.5];
     [self refresh_picker];
-    selectedDeviceForFlashing = 0;
 }
 
 - (IBAction)change_sample_frequency:(id)sender {
     sampleFrequency = (int) self.sampleFrequencySlider.value;
+    // Don't allow sample frequency to exceed 100 Hz.
+    if (([connectedDevices count]*sampleFrequency) > 100) {
+        sampleFrequency = (int) 100/[connectedDevices count];
+    }
+    
     [_sampleFrequencySlider setValue:sampleFrequency animated:YES];
     [_sampleFrequencyLabel setText:[NSString stringWithFormat:@"%d",sampleFrequency]];
 }
 
 - (IBAction)flashDevice:(id)sender {
     [manager retrieveSavedMetaWearsWithHandler:^(NSArray* listOfDevices) {
-        if (selectedDeviceForFlashing==-1) {
+        if ([self.devicePicker selectedRowInComponent:0]==-1) {
             NSLog(@"Must select a device.");
         } else{
-            MBLMetaWear *device = listOfDevices[selectedDeviceForFlashing];
+            // Collect the id's of the devices in the array.
+            NSMutableArray *theseids = [NSMutableArray array];
+            for (MBLMetaWear *l in listOfDevices) {
+                [theseids addObject:l.identifier.UUIDString];
+            }
+            
+            // See if this device is in the connected devices array.
+            NSInteger connectedDevicesIx = [self.devicePicker selectedRowInComponent:0];
+            NSUInteger idx = [theseids indexOfObject:connectedDevices[connectedDevicesIx]];
+            
+            NSLog(@"Flashing %@",theseids[idx]);
+            MBLMetaWear *device = listOfDevices[idx];
             [device.led flashLEDColorAsync:[UIColor redColor] withIntensity:0.8 numberOfFlashes:3];
         }
     }];
@@ -423,7 +438,6 @@
     }];
     
     pickerData = @[@"No devices."];
-    selectedDeviceForFlashing = 0;
     [devicePicker reloadAllComponents];
     [self clearTable];
     [hud hide:YES afterDelay:0.5];
