@@ -24,6 +24,7 @@
 @synthesize bluetoothManager;
 @synthesize devicePicker;
 @synthesize scroller;
+@synthesize downloadProgressBar;
 
 
 /*************************
@@ -309,39 +310,41 @@
     [manager retrieveSavedMetaWearsWithHandler:^(NSArray *listOfDevices) {
         int i = 0;
         for (MBLMetaWear *currdevice in listOfDevices) {
-            //Initialize arrays for collecting data.
-            self.accelerometerDataArrays[i] = [[NSMutableArray alloc] initWithCapacity:INITIAL_CAPACITY];
-            self.gyroDataArrays[i] = [[NSMutableArray alloc] initWithCapacity:INITIAL_CAPACITY];
-            
-            //Set accelerometer parameters.
-            MBLAccelerometerBMI160 *accelerometer = (MBLAccelerometerBMI160*) currdevice.accelerometer;
-            MBLGyroBMI160 *gyro = (MBLGyroBMI160*) currdevice.gyro;
-            
-            accelerometer.sampleFrequency = sampleFrequency;
-            accelerometer.fullScaleRange = MBLAccelerometerBMI160Range4G;
-            gyro.sampleFrequency = sampleFrequency;
-            gyro.fullScaleRange = MBLGyroBMI160Range500;
-            
-            NSLog(@"Starting log of device %d",i);
-            [currdevice.accelerometer.dataReadyEvent startNotificationsWithHandlerAsync:^(MBLAccelerometerData *obj, NSError *error) {
-                if (error) {
-                    NSLog(@"Error in accelerometer data.");
-                    [self disconnectedAlert:currdevice.identifier.UUIDString];
-                    [self.accelerometerDataArrays[i] addObject:@[@"NaN",@"NaN",@"NaN",@"NaN"]];
-                } else {
-                    [self.accelerometerDataArrays[i] addObject:
-                            @[obj.timestamp,@(obj.x),@(obj.y),@(obj.z)]];
-                }
-            }];
-            [currdevice.gyro.dataReadyEvent startNotificationsWithHandlerAsync:^(MBLGyroData *obj,NSError *error) {
-                if (error) {
-                    NSLog(@"Error in gyrometer data.");
-                    [self.gyroDataArrays[i] addObject: @[@"NaN",@"NaN",@"NaN",@"NaN"]];
-                } else {
-                    [self.gyroDataArrays[i] addObject: @[obj.timestamp,@(obj.x),@(obj.y),@(obj.z)]];
-                }
-            }];
-            i++;
+            if ([connectedDevices indexOfObject:currdevice.identifier.UUIDString]!=NSNotFound) {
+                //Initialize arrays for collecting data.
+                self.accelerometerDataArrays[i] = [[NSMutableArray alloc] initWithCapacity:INITIAL_CAPACITY];
+                self.gyroDataArrays[i] = [[NSMutableArray alloc] initWithCapacity:INITIAL_CAPACITY];
+                
+                //Set accelerometer parameters.
+                MBLAccelerometerBMI160 *accelerometer = (MBLAccelerometerBMI160*) currdevice.accelerometer;
+                MBLGyroBMI160 *gyro = (MBLGyroBMI160*) currdevice.gyro;
+                
+                accelerometer.sampleFrequency = sampleFrequency;
+                accelerometer.fullScaleRange = MBLAccelerometerBMI160Range4G;
+                gyro.sampleFrequency = sampleFrequency;
+                gyro.fullScaleRange = MBLGyroBMI160Range500;
+                
+                NSLog(@"Starting log of device %d",i);
+                [currdevice.accelerometer.dataReadyEvent startNotificationsWithHandlerAsync:^(MBLAccelerometerData *obj, NSError *error) {
+                    if (error) {
+                        NSLog(@"Error in accelerometer data.");
+                        [self disconnectedAlert:currdevice.identifier.UUIDString];
+                        [self.accelerometerDataArrays[i] addObject:@[@"NaN",@"NaN",@"NaN",@"NaN"]];
+                    } else {
+                        [self.accelerometerDataArrays[i] addObject:
+                                @[obj.timestamp,@(obj.x),@(obj.y),@(obj.z)]];
+                    }
+                }];
+                [currdevice.gyro.dataReadyEvent startNotificationsWithHandlerAsync:^(MBLGyroData *obj,NSError *error) {
+                    if (error) {
+                        NSLog(@"Error in gyrometer data.");
+                        [self.gyroDataArrays[i] addObject: @[@"NaN",@"NaN",@"NaN",@"NaN"]];
+                    } else {
+                        [self.gyroDataArrays[i] addObject: @[obj.timestamp,@(obj.x),@(obj.y),@(obj.z)]];
+                    }
+                }];
+                i++;
+            }//endif
         }
         [hud hide:YES afterDelay:0.5];
     }];
@@ -354,14 +357,86 @@
         int i=0;
         for (MBLMetaWear *device in listOfDevices) {
             //Stop streaming data.
-            [device.accelerometer.dataReadyEvent stopNotificationsAsync];
-            [device.gyro.dataReadyEvent stopNotificationsAsync];
-            NSLog(@"Stopping record %i",i);
-            i++;
+            if ([connectedDevices indexOfObject:device.identifier.UUIDString]!=NSNotFound) {
+                [device.accelerometer.dataReadyEvent stopNotificationsAsync];
+                [device.gyro.dataReadyEvent stopNotificationsAsync];
+                NSLog(@"Stopping record %i",i);
+                i++;
+            }
+        }
+        
+        [hud hide:YES afterDelay:0.5];
+    }];
+}
+
+
+- (IBAction)startLogRecording:(id)sender {
+    MBProgressHUD *hud = [self busyIndicator:@"Starting..."];
+    
+    [manager retrieveSavedMetaWearsWithHandler:^(NSArray *listOfDevices) {
+        int i = 0;
+        for (MBLMetaWear *currdevice in listOfDevices) {
+            if ([connectedDevices indexOfObject:currdevice.identifier.UUIDString]!=NSNotFound) {
+                //Initialize arrays for collecting data.
+                self.accelerometerDataArrays[i] = [[NSMutableArray alloc] initWithCapacity:INITIAL_CAPACITY];
+                self.gyroDataArrays[i] = [[NSMutableArray alloc] initWithCapacity:INITIAL_CAPACITY];
+                
+                //Set accelerometer parameters.
+                MBLAccelerometerBMI160 *accelerometer = (MBLAccelerometerBMI160*) currdevice.accelerometer;
+                MBLGyroBMI160 *gyro = (MBLGyroBMI160*) currdevice.gyro;
+                
+                accelerometer.sampleFrequency = sampleFrequency;
+                accelerometer.fullScaleRange = MBLAccelerometerBMI160Range4G;
+                gyro.sampleFrequency = sampleFrequency;
+                gyro.fullScaleRange = MBLGyroBMI160Range500;
+                
+                NSLog(@"Starting log of device %d",i);
+                [currdevice.accelerometer.dataReadyEvent startLoggingAsync];
+                [currdevice.gyro.dataReadyEvent startLoggingAsync];
+                i++;
+            }
         }
         [hud hide:YES afterDelay:0.5];
     }];
 }
+
+- (IBAction)stopLogRecording:(id)sender {
+    MBProgressHUD *hud = [self busyIndicator:@"Stopping..."];
+    
+    [manager retrieveSavedMetaWearsWithHandler:^(NSArray *listOfDevices) {
+        int i=0;
+        for (MBLMetaWear *device in listOfDevices) {
+            if ([connectedDevices indexOfObject:device.identifier.UUIDString]!=NSNotFound) {
+                //Stop streaming data and store in local data arrays.
+                [[device.accelerometer.dataReadyEvent downloadLogAndStopLoggingAsync:YES progressHandler:^(float number) {
+                    // Update progress bar, as this can take upwards of one minute to download a full log
+                    [self.downloadProgressBar setText:[NSString stringWithFormat:@"%f",number*100]];
+                }] success:^(NSArray<MBLNumericData *> * _Nonnull result) {
+                    // array contains all the log entries
+                    for (MBLNumericData *entry in result) {
+                        [self.accelerometerDataArrays[i] addObject:entry];
+                    }
+                }];
+                
+                [[device.gyro.dataReadyEvent downloadLogAndStopLoggingAsync:YES progressHandler:^(float number) {
+                    // Update progress bar using accelerometer data.
+                }] success:^(NSArray<MBLNumericData *> * _Nonnull result) {
+                    // array contains all the log entries
+                    for (MBLNumericData *entry in result) {
+                        [self.gyroDataArrays[i] addObject:entry];
+                    }
+                }];
+                
+                NSLog(@"Stopping record %i",i);
+                i++;
+            }
+        }
+        
+        [hud hide:YES afterDelay:0.5];
+    }];
+}
+
+
 
 - (IBAction)saveFiles:(id)sender {
     MBProgressHUD *hud = [self busyIndicator:@"Saving..."];
@@ -494,6 +569,14 @@
     for (NSIndexPath *i in [_selectDevicesTable indexPathsForSelectedRows]) {
         [_selectDevicesTable deselectRowAtIndexPath:i animated:NO];
     }
+}
+
+- (NSMutableArray*)get_ids:(NSArray*)listOfDevices {
+    NSMutableArray *thisids = [NSMutableArray array];
+    for (MBLMetaWear *l in listOfDevices) {
+        [thisids addObject: l.identifier.UUIDString];
+    }
+    return thisids;
 }
 
 @end
