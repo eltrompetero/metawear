@@ -176,6 +176,13 @@
                                         <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
                                         <nil key="highlightedColor"/>
                                     </label>
+                                    <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Bho-kh-f3S">
+                                        <rect key="frame" x="195" y="835" width="69" height="30"/>
+                                        <state key="normal" title="Clear files"/>
+                                        <connections>
+                                            <action selector="clearFilesButton:" destination="BYZ-38-t0r" eventType="touchUpInside" id="A8c-kE-5AI"/>
+                                        </connections>
+                                    </button>
                                 </subviews>
                             </scrollView>
                         </subviews>

@@ -378,6 +378,8 @@
         int i = 0;
         for (MBLMetaWear *currdevice in listOfDevices) {
             if ([connectedDevices indexOfObject:currdevice.identifier.UUIDString]!=NSNotFound) {
+                currdevice.settings.circularBufferLog=YES;
+                
                 //Initialize arrays for collecting data.
                 self.accelerometerDataArrays[i] = [[NSMutableArray alloc] initWithCapacity:INITIAL_CAPACITY];
                 self.gyroDataArrays[i] = [[NSMutableArray alloc] initWithCapacity:INITIAL_CAPACITY];
@@ -415,17 +417,32 @@
                 }] success:^(NSArray<MBLNumericData *> * _Nonnull result) {
                     // array contains all the log entries
                     for (MBLNumericData *entry in result) {
-                        NSLog(@"%@",entry);
+                        NSString *strData = [NSString stringWithFormat:@"%@",entry];
+                        NSArray *entries = [strData componentsSeparatedByString:@","];
+                        
+                        [self.accelerometerDataArrays[i] addObject:
+                                    @[entry.timestamp,
+                                      @([entries[0] floatValue]),
+                                      @([entries[1] floatValue]),
+                                      @([entries[2] floatValue])]];
                     }
                 }];
                 
-                [[device.gyro.dataReadyEvent downloadLogAndStopLoggingAsync:YES progressHandler:^(float number) {
+                [[device.gyro.dataReadyEvent downloadLogAndStopLoggingAsync:YES
+                                                            progressHandler:^(float number) {
                     // Update progress bar using.
                     [self.downloadProgressGyro setText:[NSString stringWithFormat:@"%f",number*100]];
                 }] success:^(NSArray<MBLNumericData *> * _Nonnull result) {
                     // array contains all the log entries
                     for (MBLNumericData *entry in result) {
-                        [self.gyroDataArrays[i] addObject:entry];
+                        NSString *strData = [NSString stringWithFormat:@"%@",entry];
+                        NSArray *entries = [strData componentsSeparatedByString:@","];
+                        
+                        [self.gyroDataArrays[i] addObject:
+                                     @[entry.timestamp,
+                                       @([entries[0] floatValue]),
+                                       @([entries[1] floatValue]),
+                                       @([entries[2] floatValue])]];
                     }
                 }];
                 
@@ -465,8 +482,10 @@
             gyroCount = [self.gyroDataArrays[i] count];
             accelCount = [self.accelerometerDataArrays[i] count];
             if (gyroCount<accelCount) {
+                NSLog(@"Gyro has less measurements (%lu vs %lu).",gyroCount,accelCount);
                 count = gyroCount;
             } else {
+                NSLog(@"Accel has less measurements (%lu vs %lu).",gyroCount,accelCount);
                 count = accelCount;
             }
             // Columns of [timeStamp,x,y,z,timeStamp,x,y,z].
@@ -482,6 +501,7 @@
                     self.gyroDataArrays[i][j][3]
                     ];
             }
+            NSLog(@"Done reading out data arrays.");
             
             // Write data to file.
             NSString *path = [documentsDirectory stringByAppendingPathComponent:
@@ -531,6 +551,10 @@
     [devicePicker reloadAllComponents];
     [self clearTable];
     [hud hide:YES afterDelay:0.5];
+}
+
+- (IBAction)clearFilesButton:(id)sender {
+    [self clearDocumentsFolder];
 }
 
 - (IBAction)exitProgram:(id)sender {
@@ -594,5 +618,26 @@
     return thisids;
 }
 
-@end
+- (void)clearDocumentsFolder {
+    NSFileManager  *manager = [NSFileManager defaultManager];
+    
+    // the preferred way to get the apps documents directory
+    NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+    NSString *documentsDirectory = [paths objectAtIndex:0];
+    
+    // grab all the files in the documents dir
+    NSArray *allFiles = [manager contentsOfDirectoryAtPath:documentsDirectory error:nil];
+    
+    // filter the array for only sqlite files
+    NSPredicate *fltr = [NSPredicate predicateWithFormat:@"self ENDSWITH '.plist'"];
+    NSArray *plistFiles = [allFiles filteredArrayUsingPredicate:fltr];
+    
+    // use fast enumeration to iterate the array and delete the files
+    for (NSString *plistFile in plistFiles)
+    {
+        NSError *error = nil;
+        [manager removeItemAtPath:[documentsDirectory stringByAppendingPathComponent:plistFile] error:&error];
+        NSAssert(!error, @"Assertion: plistFile file deletion shall never throw an error.");
+    }}
 
+@end
