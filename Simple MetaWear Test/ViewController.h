@@ -23,7 +23,9 @@
 @property (weak, nonatomic) IBOutlet UIScrollView *scroller;
 @property (weak, nonatomic) IBOutlet UILabel *sampleFrequencyLabel;
 @property (weak, nonatomic) IBOutlet UISlider *sampleFrequencySlider;
-@property (weak, nonatomic) IBOutlet UILabel *downloadProgressBar;
+@property (weak, nonatomic) IBOutlet UILabel *downloadProgressAccel;
+@property (weak, nonatomic) IBOutlet UILabel *downloadProgressGyro;
+
 
 @property MBLMetaWearManager *manager;
 

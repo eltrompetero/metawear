@@ -18,7 +18,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <scrollView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="7zg-Fe-s7c">
-                                <rect key="frame" x="-1" y="15" width="350" height="1000"/>
+                                <rect key="frame" x="0.0" y="15" width="350" height="1000"/>
                                 <subviews>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="No devices." textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="xwv-2A-SnB">
                                         <rect key="frame" x="8" y="376" width="393" height="109"/>
@@ -152,14 +152,26 @@
                                             <action selector="stopLogRecording:" destination="BYZ-38-t0r" eventType="touchUpInside" id="gF5-rB-8Ni"/>
                                         </connections>
                                     </button>
-                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="0" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="AbM-IC-3kh">
-                                        <rect key="frame" x="268" y="760" width="11" height="21"/>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="%" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="cbf-LW-v0T">
+                                        <rect key="frame" x="293" y="760" width="13" height="21"/>
                                         <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                         <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
                                         <nil key="highlightedColor"/>
                                     </label>
-                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="%" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="cbf-LW-v0T">
-                                        <rect key="frame" x="293" y="760" width="13" height="21"/>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="0" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="20l-nO-mW9">
+                                        <rect key="frame" x="244" y="789" width="45" height="21"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                        <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
+                                        <nil key="highlightedColor"/>
+                                    </label>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="%" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="mXV-Kx-Axs">
+                                        <rect key="frame" x="293" y="789" width="13" height="21"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                        <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
+                                        <nil key="highlightedColor"/>
+                                    </label>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="0" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="0my-OJ-Rlz">
+                                        <rect key="frame" x="244" y="760" width="45" height="21"/>
                                         <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                         <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
                                         <nil key="highlightedColor"/>
@@ -174,7 +186,8 @@
                     <connections>
                         <outlet property="connectedDevicesLabel" destination="xwv-2A-SnB" id="KMW-Z6-kfs"/>
                         <outlet property="devicePicker" destination="GoA-2f-ik7" id="4U0-9w-yBu"/>
-                        <outlet property="downloadProgressBar" destination="AbM-IC-3kh" id="JIy-rz-FL9"/>
+                        <outlet property="downloadProgressAccel" destination="0my-OJ-Rlz" id="TVm-cl-8y3"/>
+                        <outlet property="downloadProgressGyro" destination="20l-nO-mW9" id="kEd-4H-l84"/>
                         <outlet property="sampleFrequencyLabel" destination="O3X-6I-UDO" id="joP-VI-cgh"/>
                         <outlet property="sampleFrequencySlider" destination="efc-d9-A3e" id="UO8-Ve-n0e"/>
                         <outlet property="scroller" destination="7zg-Fe-s7c" id="mwr-tp-gBI"/>

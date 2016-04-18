@@ -24,7 +24,8 @@
 @synthesize bluetoothManager;
 @synthesize devicePicker;
 @synthesize scroller;
-@synthesize downloadProgressBar;
+@synthesize downloadProgressAccel;
+@synthesize downloadProgressGyro;
 
 
 /*************************
@@ -70,7 +71,7 @@
 }
 
 - (void)centralManagerDidUpdateState:(CBCentralManager *)central {
-    //Check if bluetooth is on and send alert if it isn't.
+    //Check if bluetooth is on and show alert with button to settings if it isn't.
     if (bluetoothManager.state!=CBCentralManagerStatePoweredOn) {
         UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"Turn bluetooth on"
                                         message:@"Bluetooth must be activated to find devices."
@@ -410,16 +411,17 @@
                 //Stop streaming data and store in local data arrays.
                 [[device.accelerometer.dataReadyEvent downloadLogAndStopLoggingAsync:YES progressHandler:^(float number) {
                     // Update progress bar, as this can take upwards of one minute to download a full log
-                    [self.downloadProgressBar setText:[NSString stringWithFormat:@"%f",number*100]];
+                    [self.downloadProgressAccel setText:[NSString stringWithFormat:@"%f",number*100]];
                 }] success:^(NSArray<MBLNumericData *> * _Nonnull result) {
                     // array contains all the log entries
                     for (MBLNumericData *entry in result) {
-                        [self.accelerometerDataArrays[i] addObject:entry];
+                        NSLog(@"%@",entry);
                     }
                 }];
                 
                 [[device.gyro.dataReadyEvent downloadLogAndStopLoggingAsync:YES progressHandler:^(float number) {
-                    // Update progress bar using accelerometer data.
+                    // Update progress bar using.
+                    [self.downloadProgressGyro setText:[NSString stringWithFormat:@"%f",number*100]];
                 }] success:^(NSArray<MBLNumericData *> * _Nonnull result) {
                     // array contains all the log entries
                     for (MBLNumericData *entry in result) {
@@ -447,7 +449,11 @@
     NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
     NSString *documentsDirectory = [paths objectAtIndex:0];
     NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
-    [dateFormatter setDateFormat:@"yyyy-MM-dd'T'HH:mm:ss.SSS"];
+    [dateFormatter setDateFormat:@"yyyy-MM-dd'T'HH:mm:ss"];
+    
+    // Get current time for unique file names.
+    NSDate *timeNow = [NSDate date];
+    NSString *strTimeNow = [dateFormatter stringFromDate:timeNow];
     
     [manager retrieveSavedMetaWearsWithHandler:^(NSArray *listOfDevices) {
         unsigned long int gyroCount,accelCount,count;
@@ -479,8 +485,8 @@
             
             // Write data to file.
             NSString *path = [documentsDirectory stringByAppendingPathComponent:
-                    [NSString stringWithFormat:@"%@_sample%d.plist",
-                     deviceIdentifiers[i],sampleFrequency]];
+                    [NSString stringWithFormat:@"%@_%@_sample%d.plist",
+                     strTimeNow,deviceIdentifiers[i],sampleFrequency]];
             [combinedData writeToFile:path atomically:YES];
             if ([[NSFileManager defaultManager] isWritableFileAtPath:path]) {
                 NSLog(@"%@ writable\n",path);
@@ -489,6 +495,15 @@
             }
         }
         [hud hide:YES afterDelay:0.5];
+        
+        // Show datetime prefix.
+        UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"Saved files"
+                   message:[NSString stringWithFormat:@"With prefix %@",strTimeNow]
+                   preferredStyle:UIAlertControllerStyleAlert];
+        UIAlertAction *closeAction = [UIAlertAction actionWithTitle:@"Close" style:
+                                      UIAlertActionStyleDefault handler:nil];
+        [alert addAction:closeAction];
+        [self presentViewController:alert animated:NO completion:nil];
     }];
     NSLog(@"Done writing.");
 }
