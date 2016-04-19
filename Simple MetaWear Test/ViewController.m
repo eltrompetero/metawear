@@ -191,9 +191,9 @@
         
         for (MBLMetaWear *foundDevice in listOfDevices) {
             //NOTE: will need to figure out proper naming scheme without collisions if you don't want to use identifiers
-            if ([deviceIdentifiers indexOfObject:foundDevice.identifier.UUIDString]==NSNotFound) {
+            if ([deviceIdentifiers indexOfObject:foundDevice.name]==NSNotFound) {
                 [foundDevice rememberDevice];
-                [deviceIdentifiers addObject: foundDevice.identifier.UUIDString];
+                [deviceIdentifiers addObject: foundDevice.name];
                 i++;
             }
         }
@@ -225,7 +225,7 @@
             // Connect to the device first.
             // connectWithTimeout:handler: is a simple way to limit the amount of
             // time spent searching for the device
-            if ([selectedDeviceIdentifiers containsObject:currdevice.identifier.UUIDString]) {
+            if ([selectedDeviceIdentifiers containsObject:currdevice.name]) {
                 [currdevice connectWithTimeout:20 handler:^(NSError *error) {
                     if ([error.domain isEqualToString:kMBLErrorDomain] &&
                         error.code == kMBLErrorConnectionTimeout) {
@@ -233,7 +233,7 @@
                         NSLog(@"Connection Timeout");
                     }
                     else {
-                        NSLog(@"Connection succeeded with %@.",currdevice.identifier.UUIDString);
+                        NSLog(@"Connection succeeded with %@.",currdevice.name);
                         [currdevice readBatteryLifeWithHandler:^(NSNumber *bl,NSError *error) {
                             if (error) {
                                 bl = [NSNumber numberWithInt:-1];
@@ -242,7 +242,7 @@
                             [deviceInformation addObject: bl];
                         }];
                         [currdevice.led flashLEDColorAsync:[UIColor greenColor] withIntensity:1.0 numberOfFlashes:2];
-                        [connectedDevices addObject:currdevice.identifier.UUIDString];
+                        [connectedDevices addObject:currdevice.name];
                     }
                 }];
                 [self refreshConnectedMetaWearsLabel:self];
@@ -260,7 +260,7 @@
     
     [manager retrieveSavedMetaWearsWithHandler:^(NSArray *listOfDevices) {
         for (MBLMetaWear *device in listOfDevices) {
-            [deviceIdentifiers addObject:device.identifier.UUIDString];
+            [deviceIdentifiers addObject:device.name];
         }
         NSLog(@"Connected devices %@",[deviceIdentifiers componentsJoinedByString:@"\n"]);
     }];
@@ -291,7 +291,7 @@
             // Collect the id's of the devices in the array.
             NSMutableArray *theseids = [NSMutableArray array];
             for (MBLMetaWear *l in listOfDevices) {
-                [theseids addObject:l.identifier.UUIDString];
+                [theseids addObject:l.name];
             }
             
             // See if this device is in the connected devices array.
@@ -311,7 +311,7 @@
     [manager retrieveSavedMetaWearsWithHandler:^(NSArray *listOfDevices) {
         int i = 0;
         for (MBLMetaWear *currdevice in listOfDevices) {
-            if ([connectedDevices indexOfObject:currdevice.identifier.UUIDString]!=NSNotFound) {
+            if ([connectedDevices indexOfObject:currdevice.name]!=NSNotFound) {
                 //Initialize arrays for collecting data.
                 self.accelerometerDataArrays[i] = [[NSMutableArray alloc] initWithCapacity:INITIAL_CAPACITY];
                 self.gyroDataArrays[i] = [[NSMutableArray alloc] initWithCapacity:INITIAL_CAPACITY];
@@ -329,7 +329,7 @@
                 [currdevice.accelerometer.dataReadyEvent startNotificationsWithHandlerAsync:^(MBLAccelerometerData *obj, NSError *error) {
                     if (error) {
                         NSLog(@"Error in accelerometer data.");
-                        [self disconnectedAlert:currdevice.identifier.UUIDString];
+                        [self disconnectedAlert:currdevice.name];
                         [self.accelerometerDataArrays[i] addObject:@[@"NaN",@"NaN",@"NaN",@"NaN"]];
                     } else {
                         [self.accelerometerDataArrays[i] addObject:
@@ -358,7 +358,7 @@
         int i=0;
         for (MBLMetaWear *device in listOfDevices) {
             //Stop streaming data.
-            if ([connectedDevices indexOfObject:device.identifier.UUIDString]!=NSNotFound) {
+            if ([connectedDevices indexOfObject:device.name]!=NSNotFound) {
                 [device.accelerometer.dataReadyEvent stopNotificationsAsync];
                 [device.gyro.dataReadyEvent stopNotificationsAsync];
                 NSLog(@"Stopping record %i",i);
@@ -377,7 +377,7 @@
     [manager retrieveSavedMetaWearsWithHandler:^(NSArray *listOfDevices) {
         int i = 0;
         for (MBLMetaWear *currdevice in listOfDevices) {
-            if ([connectedDevices indexOfObject:currdevice.identifier.UUIDString]!=NSNotFound) {
+            if ([connectedDevices indexOfObject:currdevice.name]!=NSNotFound) {
                 currdevice.settings.circularBufferLog=YES;
                 
                 //Initialize arrays for collecting data.
@@ -409,7 +409,7 @@
     [manager retrieveSavedMetaWearsWithHandler:^(NSArray *listOfDevices) {
         int i=0;
         for (MBLMetaWear *device in listOfDevices) {
-            if ([connectedDevices indexOfObject:device.identifier.UUIDString]!=NSNotFound) {
+            if ([connectedDevices indexOfObject:device.name]!=NSNotFound) {
                 //Stop streaming data and store in local data arrays.
                 [[device.accelerometer.dataReadyEvent downloadLogAndStopLoggingAsync:YES progressHandler:^(float number) {
                     // Update progress bar, as this can take upwards of one minute to download a full log
@@ -540,7 +540,7 @@
                     NSLog(@"Problems disconnecting.");
                 }
                 else {
-                    NSLog(@"Disconnected from %@",device.identifier.UUIDString);
+                    NSLog(@"Disconnected from %@",device.name);
                 }
             }];
         };
@@ -613,7 +613,7 @@
 - (NSMutableArray*)get_ids:(NSArray*)listOfDevices {
     NSMutableArray *thisids = [NSMutableArray array];
     for (MBLMetaWear *l in listOfDevices) {
-        [thisids addObject: l.identifier.UUIDString];
+        [thisids addObject: l.name];
     }
     return thisids;
 }
