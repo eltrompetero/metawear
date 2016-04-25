@@ -116,14 +116,6 @@
                                         <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                                         <nil key="highlightedColor"/>
                                     </label>
-                                    <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="OWJ-tv-lng">
-                                        <rect key="frame" x="8" y="873" width="30" height="30"/>
-                                        <state key="normal" title="Exit"/>
-                                        <connections>
-                                            <action selector="exit:" destination="BYZ-38-t0r" eventType="touchUpInside" id="d52-Mx-MXY"/>
-                                            <action selector="exitProgram:" destination="BYZ-38-t0r" eventType="touchUpInside" id="xM2-BI-Veu"/>
-                                        </connections>
-                                    </button>
                                     <tableView clipsSubviews="YES" contentMode="scaleToFill" fixedFrame="YES" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="20" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="Dmk-1V-KOY">
                                         <rect key="frame" x="8" y="75" width="244" height="238"/>
                                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
@@ -183,6 +175,13 @@
                                             <action selector="clearFilesButton:" destination="BYZ-38-t0r" eventType="touchUpInside" id="A8c-kE-5AI"/>
                                         </connections>
                                     </button>
+                                    <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ZpX-M9-9Lr">
+                                        <rect key="frame" x="59" y="900" width="30" height="30"/>
+                                        <state key="normal" title="Exit"/>
+                                        <connections>
+                                            <action selector="exitProgram:" destination="BYZ-38-t0r" eventType="touchUpInside" id="ZVt-Ed-FZy"/>
+                                        </connections>
+                                    </button>
                                 </subviews>
                             </scrollView>
                         </subviews>
@@ -196,6 +195,7 @@
                         <outlet property="devicePicker" destination="GoA-2f-ik7" id="4U0-9w-yBu"/>
                         <outlet property="downloadProgressAccel" destination="0my-OJ-Rlz" id="TVm-cl-8y3"/>
                         <outlet property="downloadProgressGyro" destination="20l-nO-mW9" id="kEd-4H-l84"/>
+                        <outlet property="flashRed" destination="T3B-Wh-MNi" id="RKv-nK-cdB"/>
                         <outlet property="refreshListButton" destination="0Li-O9-rN5" id="FuQ-ab-4AH"/>
                         <outlet property="sampleFrequencyLabel" destination="O3X-6I-UDO" id="joP-VI-cgh"/>
                         <outlet property="sampleFrequencySlider" destination="efc-d9-A3e" id="UO8-Ve-n0e"/>

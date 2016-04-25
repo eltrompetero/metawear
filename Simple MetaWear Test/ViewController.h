@@ -28,6 +28,7 @@
 
 @property (weak, nonatomic) IBOutlet UIButton *connectDevicesButton;
 @property (weak, nonatomic) IBOutlet UIButton *refreshListButton;
+@property (weak, nonatomic) IBOutlet UIButton *flashRed;
 
 @property (weak, nonatomic) IBOutlet UIButton *stopRecordingButton;
 @property (weak, nonatomic) IBOutlet UIButton *startRecordingButton;
@@ -45,7 +46,7 @@
 
 - (IBAction)stopRecording:(id)sender;
 - (IBAction)disconnectDevices:(id)sender;
-- (IBAction)exitProgram:(id)sender;
+//- (IBAction)exitProgram:(id)sender;
 
 - (void)updateLabel : (NSString*)text : (UILabel*)label;
 @end

@@ -74,6 +74,7 @@
     [self disable_button:_stopLoggingButton];
     [self disable_button:_connectDevicesButton];
     [self disable_button:_refreshListButton];
+    [self disable_button:_flashRed];
 }
 
 - (void)centralManagerDidUpdateState:(CBCentralManager *)central {
@@ -174,6 +175,7 @@
         pickerData = connectedDevices;
         NSLog(@"Picker connected devices %@",[connectedDevices componentsJoinedByString:@"\n"]);
         [devicePicker reloadAllComponents];
+        [self enable_button:_flashRed];
     }
 }
 
@@ -562,22 +564,25 @@
     //Disconnect.
     [manager retrieveSavedMetaWearsWithHandler:^(NSArray *listOfDevices) {
         for (MBLMetaWear *device in listOfDevices) {
-            [device disconnectWithHandler:^(NSError* error) {
-                if (error) {
-                    NSLog(@"Problems disconnecting.");
-                }
-                else {
-                    NSLog(@"Disconnected from %@",device.name);
-                    //Reduce transmit power back to default.
-                    device.settings.transmitPower = MBLTransmitPower0dBm;
-                }
-            }];
+            if ([connectedDevices indexOfObject:device.name]!=NSNotFound) {
+                [device disconnectWithHandler:^(NSError* error) {
+                    if (error) {
+                        NSLog(@"Problems disconnecting.");
+                    }
+                    else {
+                        NSLog(@"Disconnected from %@",device.name);
+                        //Reduce transmit power back to default.
+                        device.settings.transmitPower = MBLTransmitPower0dBm;
+                    }
+                }];
+            };
         };
         [self updateLabel:@"" :connectedDevicesLabel];
     }];
     
     pickerData = @[@"No devices."];
     [devicePicker reloadAllComponents];
+    [self disable_button:_flashRed];
     [self clearTable];
     [hud hide:YES afterDelay:0.5];
 }
@@ -585,13 +590,13 @@
 
 - (IBAction)clearFilesButton:(id)sender {
     UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"Please confirm."
-                                   message:@"Delete all files?"
-                                   preferredStyle:UIAlertControllerStyleAlert];
+                                  message:@"Delete all files?"
+                                  preferredStyle:UIAlertControllerStyleAlert];
     UIAlertAction *noAction = [UIAlertAction actionWithTitle:@"No" style:
-                                  UIAlertActionStyleDefault handler:nil];
+                                 UIAlertActionStyleDefault handler:nil];
     UIAlertAction *yesAction = [UIAlertAction actionWithTitle:@"Yes"
-                                 style:UIAlertActionStyleDefault
-                                 handler:^(UIAlertAction *action) {
+                                  style:UIAlertActionStyleDefault
+                                  handler:^(UIAlertAction *action) {
                                            [self clearDocumentsFolder];
                                        }];
     [alert addAction:yesAction];
@@ -602,8 +607,12 @@
 
 - (IBAction)exitProgram:(id)sender {
     //Disconnect devices before exiting.
-    [self disconnectDevices:self];
-    exit(0);
+    [self yes_no_alert_title:@"Confirm exit"
+                     message:@"Really exit?"
+                     handler:^(UIAlertAction *action){
+                         [self disconnectDevices:self];
+                         exit(0);
+                         }];
 }
 
 
@@ -644,6 +653,23 @@
     UIAlertAction *closeAction = [UIAlertAction actionWithTitle:@"Close" style:
                                   UIAlertActionStyleDefault handler:nil];
     [alert addAction:closeAction];
+    [self presentViewController:alert animated:NO completion:nil];
+}
+
+- (void)yes_no_alert_title:(NSString*)title
+                   message:(NSString*)msg
+                   handler:(void (^)(UIAlertAction*))action {
+    // Show yes or no dialog pop up.
+    UIAlertController *alert = [UIAlertController alertControllerWithTitle:title
+                                                           message:msg
+                                                    preferredStyle:UIAlertControllerStyleAlert];
+    UIAlertAction *noAction = [UIAlertAction actionWithTitle:@"No" style:
+                               UIAlertActionStyleDefault handler:nil];
+    UIAlertAction *yesAction = [UIAlertAction actionWithTitle:@"Yes"
+                                                        style:UIAlertActionStyleDefault
+                                                      handler:action];
+    [alert addAction:yesAction];
+    [alert addAction:noAction];
     [self presentViewController:alert animated:NO completion:nil];
 }
 
