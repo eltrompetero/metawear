@@ -327,7 +327,7 @@
         [manager retrieveSavedMetaWearsWithHandler:^(NSArray *listOfDevices) {
             int i = 0;
             for (MBLMetaWear *currdevice in listOfDevices) {
-                if ([connectedDevices indexOfObject:currdevice.name]!=NSNotFound) {
+                if ([connectedDevices containsObject:currdevice.name]) {
                     //Initialize arrays for collecting data.
                     self.accelerometerDataArrays[i] = [[NSMutableArray alloc] initWithCapacity:INITIAL_CAPACITY];
                     self.gyroDataArrays[i] = [[NSMutableArray alloc] initWithCapacity:INITIAL_CAPACITY];
@@ -379,7 +379,7 @@
         int i=0;
         for (MBLMetaWear *device in listOfDevices) {
             //Stop streaming data.
-            if ([connectedDevices indexOfObject:device.name]!=NSNotFound) {
+            if ([connectedDevices containsObject:device.name]) {
                 [device.accelerometer.dataReadyEvent stopNotificationsAsync];
                 [device.gyro.dataReadyEvent stopNotificationsAsync];
                 NSLog(@"Stopping record %i",i);
@@ -402,7 +402,7 @@
         [manager retrieveSavedMetaWearsWithHandler:^(NSArray *listOfDevices) {
             int i = 0;
             for (MBLMetaWear *currdevice in listOfDevices) {
-                if ([connectedDevices indexOfObject:currdevice.name]!=NSNotFound) {
+                if ([connectedDevices containsObject:currdevice.name]) {
                     currdevice.settings.circularBufferLog=YES;
                     
                     //Initialize arrays for collecting data.
@@ -437,7 +437,7 @@
     [manager retrieveSavedMetaWearsWithHandler:^(NSArray *listOfDevices) {
         int i=0;
         for (MBLMetaWear *device in listOfDevices) {
-            if ([connectedDevices indexOfObject:device.name]!=NSNotFound) {
+            if ([connectedDevices containsObject:device.name]) {
                 //Stop streaming data and store in local data arrays.
                 [[device.accelerometer.dataReadyEvent downloadLogAndStopLoggingAsync:YES progressHandler:^(float number) {
                     // Update progress bar, as this can take upwards of one minute to download a full log
@@ -565,7 +565,7 @@
     //Disconnect.
     [manager retrieveSavedMetaWearsWithHandler:^(NSArray *listOfDevices) {
         for (MBLMetaWear *device in listOfDevices) {
-            if ([connectedDevices indexOfObject:device.name]!=NSNotFound) {
+            if ([connectedDevices containsObject:device.name]) {
                 [device disconnectWithHandler:^(NSError* error) {
                     if (error) {
                         NSLog(@"Problems disconnecting.");
