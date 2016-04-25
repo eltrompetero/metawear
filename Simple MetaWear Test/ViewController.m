@@ -231,16 +231,17 @@
         [selectedDeviceIdentifiers addObject: [deviceIdentifiers objectAtIndex:i.row]];
     }
     
-    // Only connected to selected devices.
+    // Only connected to selected devices that have not yet been connected.
     [manager retrieveSavedMetaWearsWithHandler:^(NSArray *array) {
         for (MBLMetaWear *currdevice in array) {
             // Connect to the device first.
-            // connectWithTimeout:handler: is a simple way to limit the amount of
-            // time spent searching for the device
-            if ([selectedDeviceIdentifiers containsObject:currdevice.name]) {
+            if ([selectedDeviceIdentifiers containsObject:currdevice.name] &&
+                [connectedDevices containsObject:currdevice.name]==NO) {
                 [currdevice connectWithTimeout:20 handler:^(NSError *error) {
                     if ([error.domain isEqualToString:kMBLErrorDomain] &&
                         error.code == kMBLErrorConnectionTimeout) {
+                        [self popup_title:@"Could not connect"
+                                  message:currdevice.name];
                         [currdevice forgetDevice];
                         NSLog(@"Connection Timeout");
                     }
@@ -655,6 +656,18 @@
     [alert addAction:closeAction];
     [self presentViewController:alert animated:NO completion:nil];
 }
+
+- (void)popup_title:(NSString*)title message:(NSString*)msg {
+    UIAlertController *alert = [UIAlertController
+                                alertControllerWithTitle:title
+                                message:msg
+                                preferredStyle:UIAlertControllerStyleAlert];
+    UIAlertAction *closeAction = [UIAlertAction actionWithTitle:@"Close" style:
+                                  UIAlertActionStyleDefault handler:nil];
+    [alert addAction:closeAction];
+    [self presentViewController:alert animated:NO completion:nil];
+}
+
 
 - (void)yes_no_alert_title:(NSString*)title
                    message:(NSString*)msg
