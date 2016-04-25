@@ -13,8 +13,8 @@
 @interface ViewController : UIViewController
 @property (strong, nonatomic) NSMutableArray *accelerometerDataArrays;
 @property (strong, nonatomic) NSMutableArray *gyroDataArrays;
-@property NSMutableArray *deviceIdentifiers;
-@property NSMutableArray *deviceInformation;
+@property (strong, atomic) NSMutableArray *deviceIdentifiers;
+@property (strong, atomic) NSMutableArray *deviceInformation;
 @property (strong, atomic) CBCentralManager *bluetoothManager;
 @property (weak, nonatomic) IBOutlet UILabel *connectedDevicesLabel;
 
@@ -46,6 +46,7 @@
 
 - (IBAction)stopRecording:(id)sender;
 - (IBAction)disconnectDevices:(id)sender;
+- (IBAction)refresh_picker:(id)sender;
 //- (IBAction)exitProgram:(id)sender;
 
 - (void)updateLabel : (NSString*)text : (UILabel*)label;

@@ -170,7 +170,7 @@
     NSLog(@"Selected %ldth device.",(long)row);
 }
 
-- (void)refresh_picker {
+- (IBAction)refresh_picker:(id)sender {
     if ([connectedDevices count]>0) {
         pickerData = connectedDevices;
         NSLog(@"Picker connected devices %@",[connectedDevices componentsJoinedByString:@"\n"]);
@@ -222,7 +222,6 @@
     MBProgressHUD *hud = [self busyIndicator:@"Connecting..."];
     NSArray *indexPathArray = [_selectDevicesTable indexPathsForSelectedRows];
     NSMutableArray *selectedDeviceIdentifiers = [[NSMutableArray alloc] init];
-    [connectedDevices removeAllObjects];
     
     // Get the devices that have been selected for connection.
     NSLog(@"Devices selected for connection are at following rows:");
@@ -263,10 +262,9 @@
                 [self refreshConnectedMetaWearsLabel:self];
             }//endif
         }
-        
-        [self refresh_picker];
         [hud hide:YES afterDelay:5.];
     }];
+    [self clearTable];
 }
 
 - (IBAction)refreshConnectedMetaWearsLabel:(id)sender {
@@ -283,8 +281,9 @@
     // Update list of connected devices in label.
     [self updateLabel: [connectedDevices componentsJoinedByString:@"\n"] : connectedDevicesLabel];
     NSLog(@"Connected devices after update %@",[deviceIdentifiers componentsJoinedByString:@"\n"]);
+    [_selectDevicesTable reloadData];
     [hud hide:YES afterDelay:.5];
-    [self refresh_picker];
+    [self refresh_picker:self];
 }
 
 - (IBAction)change_sample_frequency:(id)sender {
