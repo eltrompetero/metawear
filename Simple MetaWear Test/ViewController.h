@@ -26,6 +26,13 @@
 @property (weak, nonatomic) IBOutlet UILabel *downloadProgressAccel;
 @property (weak, nonatomic) IBOutlet UILabel *downloadProgressGyro;
 
+@property (weak, nonatomic) IBOutlet UIButton *connectDevicesButton;
+@property (weak, nonatomic) IBOutlet UIButton *refreshListButton;
+
+@property (weak, nonatomic) IBOutlet UIButton *stopRecordingButton;
+@property (weak, nonatomic) IBOutlet UIButton *startRecordingButton;
+@property (weak, nonatomic) IBOutlet UIButton *startLoggingButton;
+@property (weak, nonatomic) IBOutlet UIButton *stopLoggingButton;
 
 @property MBLMetaWearManager *manager;
 

@@ -40,7 +40,7 @@
                                         <nil key="highlightedColor"/>
                                     </label>
                                     <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Jil-RF-2th">
-                                        <rect key="frame" x="8" y="703" width="104" height="30"/>
+                                        <rect key="frame" x="8" y="704" width="104" height="30"/>
                                         <state key="normal" title="Start recording"/>
                                         <connections>
                                             <action selector="startRecording:" destination="BYZ-38-t0r" eventType="touchUpInside" id="dZI-O8-lNa"/>
@@ -191,14 +191,20 @@
                     <freeformSimulatedSizeMetrics key="simulatedDestinationMetrics"/>
                     <size key="freeformSize" width="350" height="1000"/>
                     <connections>
+                        <outlet property="connectDevicesButton" destination="2kl-wY-a06" id="GGc-XA-ljV"/>
                         <outlet property="connectedDevicesLabel" destination="xwv-2A-SnB" id="KMW-Z6-kfs"/>
                         <outlet property="devicePicker" destination="GoA-2f-ik7" id="4U0-9w-yBu"/>
                         <outlet property="downloadProgressAccel" destination="0my-OJ-Rlz" id="TVm-cl-8y3"/>
                         <outlet property="downloadProgressGyro" destination="20l-nO-mW9" id="kEd-4H-l84"/>
+                        <outlet property="refreshListButton" destination="0Li-O9-rN5" id="FuQ-ab-4AH"/>
                         <outlet property="sampleFrequencyLabel" destination="O3X-6I-UDO" id="joP-VI-cgh"/>
                         <outlet property="sampleFrequencySlider" destination="efc-d9-A3e" id="UO8-Ve-n0e"/>
                         <outlet property="scroller" destination="7zg-Fe-s7c" id="mwr-tp-gBI"/>
                         <outlet property="selectDevicesTable" destination="Dmk-1V-KOY" id="oYm-Ox-fC2"/>
+                        <outlet property="startLoggingButton" destination="86h-bz-TLf" id="6y6-n3-ZF8"/>
+                        <outlet property="startRecordingButton" destination="Jil-RF-2th" id="6ce-ix-0lH"/>
+                        <outlet property="stopLoggingButton" destination="lma-ME-h0Y" id="kGP-6a-P2Y"/>
+                        <outlet property="stopRecordingButton" destination="6gn-Vv-v6I" id="WVu-BX-WGB"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>

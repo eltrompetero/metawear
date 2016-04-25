@@ -68,6 +68,12 @@
                              options:[NSDictionary dictionaryWithObject:[NSNumber numberWithInt:0]
                              forKey:CBCentralManagerOptionShowPowerAlertKey]];
     [_selectDevicesTable reloadData];
+    
+    // Disable some buttons.
+    [self disable_button:_stopRecordingButton];
+    [self disable_button:_stopLoggingButton];
+    [self disable_button:_connectDevicesButton];
+    [self disable_button:_refreshListButton];
 }
 
 - (void)centralManagerDidUpdateState:(CBCentralManager *)central {
@@ -182,6 +188,8 @@
 //            [device forgetDevice];
 //        }
 //    }];
+    [self disable_button:_connectDevicesButton];
+    [self disable_button:_refreshListButton];
     MBProgressHUD *hud = [self busyIndicator:@"Searching..."];
     
     //Search for devices excluding duplicates.
@@ -196,6 +204,8 @@
                 [deviceIdentifiers addObject: foundDevice.name];
                 i++;
             }
+            [self enable_button:_connectDevicesButton];
+            [self enable_button:_refreshListButton];
         }
         
         // List found metaWears.
@@ -243,6 +253,8 @@
                         }];
                         [currdevice.led flashLEDColorAsync:[UIColor greenColor] withIntensity:1.0 numberOfFlashes:2];
                         [connectedDevices addObject:currdevice.name];
+                        //Increase transmit power.
+                        currdevice.settings.transmitPower = MBLTransmitPower4dBm;
                     }
                 }];
                 [self refreshConnectedMetaWearsLabel:self];
@@ -348,6 +360,8 @@
             }//endif
         }
         [hud hide:YES afterDelay:0.5];
+        [self disable_button:_startRecordingButton];
+        [self enable_button:_stopRecordingButton];
     }];
 }
 
@@ -367,6 +381,8 @@
         }
         
         [hud hide:YES afterDelay:0.5];
+        [self disable_button:_stopRecordingButton];
+        [self enable_button:_startRecordingButton];
     }];
 }
 
@@ -400,6 +416,8 @@
             }
         }
         [hud hide:YES afterDelay:0.5];
+        [self disable_button:_startLoggingButton];
+        [self enable_button:_stopLoggingButton];
     }];
 }
 
@@ -452,6 +470,8 @@
         }
         
         [hud hide:YES afterDelay:0.5];
+        [self disable_button:_stopLoggingButton];
+        [self enable_button:_startLoggingButton];
     }];
 }
 
@@ -516,7 +536,7 @@
         }
         [hud hide:YES afterDelay:0.5];
         
-        // Show datetime prefix.
+        // Show datetime prefix in alert box.
         UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"Saved files"
                    message:[NSString stringWithFormat:@"With prefix %@",strTimeNow]
                    preferredStyle:UIAlertControllerStyleAlert];
@@ -541,6 +561,8 @@
                 }
                 else {
                     NSLog(@"Disconnected from %@",device.name);
+                    //Reduce transmit power back to default.
+                    device.settings.transmitPower = MBLTransmitPower0dBm;
                 }
             }];
         };
@@ -554,7 +576,19 @@
 }
 
 - (IBAction)clearFilesButton:(id)sender {
-    [self clearDocumentsFolder];
+    UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"Please confirm."
+                                   message:@"Delete all files?"
+                                   preferredStyle:UIAlertControllerStyleAlert];
+    UIAlertAction *noAction = [UIAlertAction actionWithTitle:@"No" style:
+                                  UIAlertActionStyleDefault handler:nil];
+    UIAlertAction *yesAction = [UIAlertAction actionWithTitle:@"Yes"
+                                 style:UIAlertActionStyleDefault
+                                 handler:^(UIAlertAction *action) {
+                                           [self clearDocumentsFolder];
+                                       }];
+    [alert addAction:yesAction];
+    [alert addAction:noAction];
+    [self presentViewController:alert animated:NO completion:nil];
 }
 
 - (IBAction)exitProgram:(id)sender {
@@ -639,5 +673,15 @@
         [manager removeItemAtPath:[documentsDirectory stringByAppendingPathComponent:plistFile] error:&error];
         NSAssert(!error, @"Assertion: plistFile file deletion shall never throw an error.");
     }}
+
+- (void)disable_button:(UIButton*) button {
+    [button setUserInteractionEnabled:NO];
+    [button setBackgroundColor:[UIColor grayColor]];
+}
+
+- (void)enable_button:(UIButton*) button{
+    [button setUserInteractionEnabled:YES];
+    [button setBackgroundColor:[UIColor whiteColor]];
+}
 
 @end
