@@ -231,7 +231,7 @@
     }
     
     // Only connected to selected devices that have not yet been connected.
-    [manager retrieveSavedMetaWearsWithHandler:^(NSArray *array) {
+    [[manager retrieveSavedMetaWearsAsync] success:^(NSArray *array) {
         for (MBLMetaWear *currdevice in array) {
             // Connect to the device first.
             if ([selectedDeviceIdentifiers containsObject:currdevice.name] &&
@@ -298,7 +298,7 @@
 }
 
 - (IBAction)flashDevice:(id)sender {
-    [manager retrieveSavedMetaWearsWithHandler:^(NSArray* listOfDevices) {
+    [[manager retrieveSavedMetaWearsAsync] success:^(NSArray* listOfDevices) {
         if ([self.devicePicker selectedRowInComponent:0]==-1) {
             NSLog(@"Must select a device.");
         } else{
@@ -323,7 +323,7 @@
     if ([self checkForConnectedDevices]) {
         MBProgressHUD *hud = [self busyIndicator:@"Starting..."];
         
-        [manager retrieveSavedMetaWearsWithHandler:^(NSArray *listOfDevices) {
+        [[manager retrieveSavedMetaWearsAsync] success:^(NSArray *listOfDevices) {
             int i = 0;
             for (MBLMetaWear *currdevice in listOfDevices) {
                 if ([connectedDevices containsObject:currdevice.name]) {
@@ -374,7 +374,7 @@
 - (IBAction)stopRecording:(id)sender {
     MBProgressHUD *hud = [self busyIndicator:@"Stopping..."];
     
-    [manager retrieveSavedMetaWearsWithHandler:^(NSArray *listOfDevices) {
+    [[manager retrieveSavedMetaWearsAsync] success:^(NSArray *listOfDevices) {
         int i=0;
         for (MBLMetaWear *device in listOfDevices) {
             //Stop streaming data.
@@ -398,7 +398,7 @@
     if ([self checkForConnectedDevices]) {
         MBProgressHUD *hud = [self busyIndicator:@"Starting..."];
         
-        [manager retrieveSavedMetaWearsWithHandler:^(NSArray *listOfDevices) {
+        [[manager retrieveSavedMetaWearsAsync] success:^(NSArray *listOfDevices) {
             int i = 0;
             for (MBLMetaWear *currdevice in listOfDevices) {
                 if ([connectedDevices containsObject:currdevice.name]) {
@@ -433,7 +433,7 @@
 - (IBAction)stopLogRecording:(id)sender {
     MBProgressHUD *hud = [self busyIndicator:@"Stopping..."];
     
-    [manager retrieveSavedMetaWearsWithHandler:^(NSArray *listOfDevices) {
+    [[manager retrieveSavedMetaWearsAsync] success:^(NSArray *listOfDevices) {
         int i=0;
         for (MBLMetaWear *device in listOfDevices) {
             if ([connectedDevices containsObject:device.name]) {
@@ -500,7 +500,7 @@
     NSDate *timeNow = [NSDate date];
     NSString *strTimeNow = [dateFormatter stringFromDate:timeNow];
     
-    [manager retrieveSavedMetaWearsWithHandler:^(NSArray *listOfDevices) {
+    [[manager retrieveSavedMetaWearsAsync] success:^(NSArray *listOfDevices) {
         unsigned long int gyroCount,accelCount,count;
         
         for (int i=0; i<[self.accelerometerDataArrays count]; i++) {
@@ -562,7 +562,7 @@
     [connectedDevices removeAllObjects];
     
     //Disconnect.
-    [manager retrieveSavedMetaWearsWithHandler:^(NSArray *listOfDevices) {
+    [[manager retrieveSavedMetaWearsAsync] success:^(NSArray *listOfDevices) {
         for (MBLMetaWear *device in listOfDevices) {
             if ([connectedDevices containsObject:device.name]) {
                 [device disconnectWithHandler:^(NSError* error) {
