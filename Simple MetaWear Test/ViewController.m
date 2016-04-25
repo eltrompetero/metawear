@@ -271,7 +271,7 @@
     MBProgressHUD *hud = [self busyIndicator:@"Refreshing..."];
     [deviceIdentifiers removeAllObjects];
     
-    [manager retrieveSavedMetaWearsWithHandler:^(NSArray *listOfDevices) {
+    [[manager retrieveSavedMetaWearsAsync] success:^(NSArray *listOfDevices) {
         for (MBLMetaWear *device in listOfDevices) {
             [deviceIdentifiers addObject:device.name];
         }
@@ -336,7 +336,7 @@
                     MBLGyroBMI160 *gyro = (MBLGyroBMI160*) currdevice.gyro;
                     
                     accelerometer.sampleFrequency = sampleFrequency;
-                    accelerometer.fullScaleRange = MBLAccelerometerBMI160Range4G;
+                    accelerometer.fullScaleRange = MBLAccelerometerBoschRange4G;
                     gyro.sampleFrequency = sampleFrequency;
                     gyro.fullScaleRange = MBLGyroBMI160Range500;
                     
@@ -413,7 +413,7 @@
                     MBLGyroBMI160 *gyro = (MBLGyroBMI160*) currdevice.gyro;
                     
                     accelerometer.sampleFrequency = sampleFrequency;
-                    accelerometer.fullScaleRange = MBLAccelerometerBMI160Range4G;
+                    accelerometer.fullScaleRange = MBLAccelerometerBoschRange4G;
                     gyro.sampleFrequency = sampleFrequency;
                     gyro.fullScaleRange = MBLGyroBMI160Range500;
                     

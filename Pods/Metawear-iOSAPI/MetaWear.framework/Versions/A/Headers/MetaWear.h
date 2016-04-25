@@ -34,8 +34,12 @@
  */
 
 #import <MetaWear/MBLAccelerometer.h>
+#import <MetaWear/MBLAccelerometerBMA255.h>
+#import <MetaWear/MBLAccelerometerBMA255MotionEvent.h>
 #import <MetaWear/MBLAccelerometerBMI160.h>
-#import <MetaWear/MBLAccelerometerBMI160LowOrHighGEvent.h>
+#import <MetaWear/MBLAccelerometerBMI160MotionEvent.h>
+#import <MetaWear/MBLAccelerometerBosch.h>
+#import <MetaWear/MBLAccelerometerBoschLowOrHighGEvent.h>
 #import <MetaWear/MBLAccelerometerData.h>
 #import <MetaWear/MBLAccelerometerMMA8452Q.h>
 #import <MetaWear/MBLAmbientLight.h>
@@ -43,6 +47,8 @@
 #import <MetaWear/MBLANCS.h>
 #import <MetaWear/MBLANCSEventData.h>
 #import <MetaWear/MBLBarometer.h>
+#import <MetaWear/MBLBarometerBosch.h>
+#import <MetaWear/MBLBarometerBME280.h>
 #import <MetaWear/MBLBarometerBMP280.h>
 #import <MetaWear/MBLConstants.h>
 #import <MetaWear/MBLData.h>
@@ -51,14 +57,17 @@
 #import <MetaWear/MBLDeviceInfo.h>
 #import <MetaWear/MBLEntityEvent.h>
 #import <MetaWear/MBLEvent.h>
+#import <MetaWear/MBLExternalThermistor.h>
 #import <MetaWear/MBLFilter.h>
 #import <MetaWear/MBLGPIO.h>
 #import <MetaWear/MBLGPIOPin.h>
-#import <MetaWear/MBLGSR.h>
+#import <MetaWear/MBLConductance.h>
 #import <MetaWear/MBLGyro.h>
 #import <MetaWear/MBLGyroBMI160.h>
 #import <MetaWear/MBLGyroData.h>
 #import <MetaWear/MBLHapticBuzzer.h>
+#import <MetaWear/MBLHygrometer.h>
+#import <MetaWear/MBLHygrometerBME280.h>
 #import <MetaWear/MBLI2C.h>
 #import <MetaWear/MBLI2CData.h>
 #import <MetaWear/MBLiBeacon.h>
@@ -74,12 +83,17 @@
 #import <MetaWear/MBLNeopixelStrand.h>
 #import <MetaWear/MBLNumericData.h>
 #import <MetaWear/MBLOrientationData.h>
+#import <MetaWear/MBLPhotometer.h>
+#import <MetaWear/MBLPhotometerTCS3472.h>
+#import <MetaWear/MBLProximity.h>
+#import <MetaWear/MBLProximityTSL2671.h>
 #import <MetaWear/MBLRegister.h>
+#import <MetaWear/MBLRGBData.h>
 #import <MetaWear/MBLRMSAccelerometerData.h>
 #import <MetaWear/MBLSettings.h>
 #import <MetaWear/MBLStringData.h>
 #import <MetaWear/MBLTemperature.h>
-#import <MetaWear/MBLExternalThermistor.h>
 #import <MetaWear/MBLTimer.h>
+#import <MetaWear/MBLTimerEvent.h>
 
 #import <MetaWear/BFTask+MBLExtensions.h>
