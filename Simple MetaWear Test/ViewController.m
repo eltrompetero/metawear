@@ -326,12 +326,10 @@
         MBProgressHUD *hud = [self busyIndicator:@"Starting..."];
         
         [[manager retrieveSavedMetaWearsAsync] success:^(NSArray *listOfDevices) {
-            int i = 0;
+            int ix;
             for (MBLMetaWear *currdevice in listOfDevices) {
                 if ([connectedDevices containsObject:currdevice.name]) {
-                    //Initialize arrays for collecting data.
-                    self.accelerometerDataArrays[i] = [[NSMutableArray alloc] initWithCapacity:INITIAL_CAPACITY];
-                    self.gyroDataArrays[i] = [[NSMutableArray alloc] initWithCapacity:INITIAL_CAPACITY];
+                    ix = (int) [connectedDevices indexOfObject:currdevice.name];
                     
                     //Set accelerometer parameters.
                     MBLAccelerometerBMI160 *accelerometer = (MBLAccelerometerBMI160*) currdevice.accelerometer;
@@ -342,15 +340,15 @@
                     gyro.sampleFrequency = sampleFrequency;
                     gyro.fullScaleRange = MBLGyroBMI160Range500;
                     
-                    NSLog(@"Starting log of device %d",i);
+                    NSLog(@"Starting log of device %d",ix);
                     [currdevice.accelerometer.dataReadyEvent
                      startNotificationsWithHandlerAsync:^(MBLAccelerometerData *obj, NSError *error) {
                         if (error) {
                             NSLog(@"Error in accelerometer data.");
                             [self disconnectedAlert:currdevice.name];
-                            [self.accelerometerDataArrays[i] addObject:@[@"NaN",@"NaN",@"NaN",@"NaN"]];
+                            [self.accelerometerDataArrays[ix] addObject:@[@"NaN",@"NaN",@"NaN",@"NaN"]];
                         } else {
-                            [self.accelerometerDataArrays[i] addObject:
+                            [self.accelerometerDataArrays[ix] addObject:
                                     @[obj.timestamp,@(obj.x),@(obj.y),@(obj.z)]];
                         }
                     }];
@@ -358,13 +356,12 @@
                      startNotificationsWithHandlerAsync:^(MBLGyroData *obj,NSError *error) {
                         if (error) {
                             NSLog(@"Error in gyrometer data.");
-                            [self.gyroDataArrays[i] addObject: @[@"NaN",@"NaN",@"NaN",@"NaN"]];
+                            [self.gyroDataArrays[ix] addObject: @[@"NaN",@"NaN",@"NaN",@"NaN"]];
                         } else {
-                            [self.gyroDataArrays[i] addObject:
+                            [self.gyroDataArrays[ix] addObject:
                                     @[obj.timestamp,@(obj.x),@(obj.y),@(obj.z)]];
                         }
                     }];
-                    i++;
                 }//endif
             }
             [hud hide:YES afterDelay:0.5];
@@ -404,14 +401,11 @@
         MBProgressHUD *hud = [self busyIndicator:@"Starting..."];
         
         [[manager retrieveSavedMetaWearsAsync] success:^(NSArray *listOfDevices) {
-            int i = 0;
+            int ix;
             for (MBLMetaWear *currdevice in listOfDevices) {
                 if ([connectedDevices containsObject:currdevice.name]) {
+                    ix = (int) [connectedDevices indexOfObject:currdevice.name];
                     currdevice.settings.circularBufferLog=YES;
-                    
-                    //Initialize arrays for collecting data.
-                    self.accelerometerDataArrays[i] = [[NSMutableArray alloc] initWithCapacity:INITIAL_CAPACITY];
-                    self.gyroDataArrays[i] = [[NSMutableArray alloc] initWithCapacity:INITIAL_CAPACITY];
                     
                     //Set accelerometer parameters.
                     MBLAccelerometerBMI160 *accelerometer = (MBLAccelerometerBMI160*) currdevice.accelerometer;
@@ -422,10 +416,9 @@
                     gyro.sampleFrequency = sampleFrequency;
                     gyro.fullScaleRange = MBLGyroBMI160Range500;
                     
-                    NSLog(@"Starting log of device %d",i);
+                    NSLog(@"Starting log of device %d",ix);
                     [currdevice.accelerometer.dataReadyEvent startLoggingAsync];
                     [currdevice.gyro.dataReadyEvent startLoggingAsync];
-                    i++;
                 }
             }
             [hud hide:YES afterDelay:0.5];
@@ -439,9 +432,11 @@
     MBProgressHUD *hud = [self busyIndicator:@"Stopping..."];
     
     [[manager retrieveSavedMetaWearsAsync] success:^(NSArray *listOfDevices) {
-        int i=0;
+        int ix;
         for (MBLMetaWear *device in listOfDevices) {
             if ([connectedDevices containsObject:device.name]) {
+                ix = (int) [connectedDevices indexOfObject:device.name];
+                
                 //Stop streaming data and store in local data arrays.
                 [[device.accelerometer.dataReadyEvent downloadLogAndStopLoggingAsync:YES progressHandler:^(float number) {
                     // Update progress bar, as this can take upwards of one minute to download a full log
@@ -452,7 +447,7 @@
                         NSString *strData = [NSString stringWithFormat:@"%@",entry];
                         NSArray *entries = [strData componentsSeparatedByString:@","];
                         
-                        [self.accelerometerDataArrays[i] addObject:
+                        [self.accelerometerDataArrays[ix] addObject:
                                     @[entry.timestamp,
                                       @([entries[0] floatValue]),
                                       @([entries[1] floatValue]),
@@ -470,7 +465,7 @@
                         NSString *strData = [NSString stringWithFormat:@"%@",entry];
                         NSArray *entries = [strData componentsSeparatedByString:@","];
                         
-                        [self.gyroDataArrays[i] addObject:
+                        [self.gyroDataArrays[ix] addObject:
                                      @[entry.timestamp,
                                        @([entries[0] floatValue]),
                                        @([entries[1] floatValue]),
@@ -478,8 +473,7 @@
                     }
                 }];
                 
-                NSLog(@"Stopping record %i",i);
-                i++;
+                NSLog(@"Stopping record %d",ix);
             }
         }
         
@@ -491,33 +485,48 @@
 
 
 - (IBAction)saveFiles:(id)sender {
-    MBProgressHUD *hud = [self busyIndicator:@"Saving..."];
+    unsigned long int gyroCount,accelCount,count;
+    NSMutableArray *allCounts = [NSMutableArray array];
+    MBProgressHUD *hud;
+    NSArray *paths;
+    NSString *documentsDirectory;
+    NSDateFormatter *dateFormatter;
+    NSDate *timeNow;
+    NSString *strTimeNow;
+    NSMutableArray *combinedData = [NSMutableArray array];
+    UIAlertController *alert;
+    UIAlertAction *closeAction;
+    NSString *path;
+    NSString *msg;
+    
+    
+    hud = [self busyIndicator:@"Saving..."];
     
     [self stopRecording:self];
     
     NSLog(@"Writing files...");
-    NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
-    NSString *documentsDirectory = [paths objectAtIndex:0];
-    NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
+    paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+    documentsDirectory = [paths objectAtIndex:0];
+    dateFormatter = [[NSDateFormatter alloc] init];
     [dateFormatter setDateFormat:@"yyyy-MM-dd'T'HH:mm:ss"];
     
     // Get current time for unique file names.
-    NSDate *timeNow = [NSDate date];
-    NSString *strTimeNow = [dateFormatter stringFromDate:timeNow];
-    
-    unsigned long int gyroCount,accelCount,count;
+    timeNow = [NSDate date];
+    strTimeNow = [dateFormatter stringFromDate:timeNow];
     
     for (int i=0; i<[self.accelerometerDataArrays count]; i++) {
         //Combine arrays.
-        NSMutableArray *combinedData = [NSMutableArray array];
         //Find longer array and save up to length of shorter array because presumably they are measured at the same time points.
         gyroCount = [self.gyroDataArrays[i] count];
         accelCount = [self.accelerometerDataArrays[i] count];
+        [allCounts addObject:@(accelCount)];
+        [allCounts addObject:@(gyroCount)];
+        
         if (gyroCount<accelCount) {
-            NSLog(@"Device %@ gyro has less measurements (%lu vs %lu).",deviceIdentifiers[i],gyroCount,accelCount);
+            NSLog(@"Device %@ gyro has less measurements (%lu vs %lu).",connectedDevices[i],gyroCount,accelCount);
             count = gyroCount;
         } else {
-            NSLog(@"Device %@ accel has less measurements (%lu vs %lu).",deviceIdentifiers[i],gyroCount,accelCount);
+            NSLog(@"Device %@ accel has less measurements (%lu vs %lu).",connectedDevices[i],gyroCount,accelCount);
             count = accelCount;
         }
         // Columns of [timeStamp,x,y,z,timeStamp,x,y,z].
@@ -536,9 +545,9 @@
         NSLog(@"Done reading out data arrays.");
         
         // Write data to file.
-        NSString *path = [documentsDirectory stringByAppendingPathComponent:
+        path = [documentsDirectory stringByAppendingPathComponent:
                 [NSString stringWithFormat:@"%@_%@_sample%d.plist",
-                 strTimeNow,deviceIdentifiers[i],sampleFrequency]];
+                 strTimeNow,connectedDevices[i],sampleFrequency]];
         [combinedData writeToFile:path atomically:YES];
         if ([[NSFileManager defaultManager] isWritableFileAtPath:path]) {
             NSLog(@"%@ writable\n",path);
@@ -549,11 +558,15 @@
     [hud hide:YES afterDelay:0.5];
     
     // Show datetime prefix in alert box.
-    UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"Saved files"
-               message:[NSString stringWithFormat:@"With prefix %@",strTimeNow]
-               preferredStyle:UIAlertControllerStyleAlert];
-    UIAlertAction *closeAction = [UIAlertAction actionWithTitle:@"Close" style:
-                                  UIAlertActionStyleDefault handler:nil];
+    msg = [NSString stringWithFormat:@"With prefix %@\n",strTimeNow];
+    for (int i=0; i<[allCounts count]; i++) {
+        msg = [msg stringByAppendingString:[NSString stringWithFormat:@"%@, ",allCounts[i]]];
+    }
+    alert = [UIAlertController alertControllerWithTitle:@"Saved files"
+                                                message:msg
+                                         preferredStyle:UIAlertControllerStyleAlert];
+    closeAction = [UIAlertAction actionWithTitle:@"Close" style:
+                   UIAlertActionStyleDefault handler:nil];
     [alert addAction:closeAction];
     [self presentViewController:alert animated:NO completion:nil];
     
@@ -641,6 +654,12 @@
 - (void) initialize_data_arrays {
     self.accelerometerDataArrays = [NSMutableArray array];  // Arrays containing logs for each device.
     self.gyroDataArrays = [NSMutableArray array];  // Arrays containing logs for each device.
+    
+    for (int i=0;i<[connectedDevices count];i++) {
+        //Initialize arrays for collecting data.
+        self.accelerometerDataArrays[i] = [[NSMutableArray alloc] initWithCapacity:INITIAL_CAPACITY];
+        self.gyroDataArrays[i] = [[NSMutableArray alloc] initWithCapacity:INITIAL_CAPACITY];
+    }
 }
 
 - (MBProgressHUD *)busyIndicator:(NSString *)message {
