@@ -57,7 +57,7 @@
     connectedDevicesLabel.numberOfLines = 0;
     
     //Initialize data arrays.
-    [self initializeDataArrays];
+    [self initialize_info_arrays];
 }
 
 - (void)viewDidAppear:(BOOL) state {
@@ -320,6 +320,8 @@
 }
 
 - (IBAction)startRecording:(id)sender {
+    [self initialize_data_arrays];
+    
     if ([self checkForConnectedDevices]) {
         MBProgressHUD *hud = [self busyIndicator:@"Starting..."];
         
@@ -395,6 +397,8 @@
 
 
 - (IBAction)startLogRecording:(id)sender {
+    [self initialize_data_arrays];
+    
     // Check if there are any connected devices.
     if ([self checkForConnectedDevices]) {
         MBProgressHUD *hud = [self busyIndicator:@"Starting..."];
@@ -628,12 +632,15 @@
     labelToChange.text = text;
 }
 
-- (void) initializeDataArrays {
-    self.accelerometerDataArrays = [NSMutableArray array];  // Arrays containing logs for each device.
-    self.gyroDataArrays = [NSMutableArray array];  // Arrays containing logs for each device.
+- (void) initialize_info_arrays {
     self.deviceIdentifiers = [NSMutableArray array];
     self.deviceInformation = [NSMutableArray array];
     connectedDevices = [NSMutableArray array];
+}
+
+- (void) initialize_data_arrays {
+    self.accelerometerDataArrays = [NSMutableArray array];  // Arrays containing logs for each device.
+    self.gyroDataArrays = [NSMutableArray array];  // Arrays containing logs for each device.
 }
 
 - (MBProgressHUD *)busyIndicator:(NSString *)message {
