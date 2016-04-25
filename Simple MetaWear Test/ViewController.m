@@ -318,51 +318,55 @@
 }
 
 - (IBAction)startRecording:(id)sender {
-    MBProgressHUD *hud = [self busyIndicator:@"Starting..."];
-    
-    [manager retrieveSavedMetaWearsWithHandler:^(NSArray *listOfDevices) {
-        int i = 0;
-        for (MBLMetaWear *currdevice in listOfDevices) {
-            if ([connectedDevices indexOfObject:currdevice.name]!=NSNotFound) {
-                //Initialize arrays for collecting data.
-                self.accelerometerDataArrays[i] = [[NSMutableArray alloc] initWithCapacity:INITIAL_CAPACITY];
-                self.gyroDataArrays[i] = [[NSMutableArray alloc] initWithCapacity:INITIAL_CAPACITY];
-                
-                //Set accelerometer parameters.
-                MBLAccelerometerBMI160 *accelerometer = (MBLAccelerometerBMI160*) currdevice.accelerometer;
-                MBLGyroBMI160 *gyro = (MBLGyroBMI160*) currdevice.gyro;
-                
-                accelerometer.sampleFrequency = sampleFrequency;
-                accelerometer.fullScaleRange = MBLAccelerometerBMI160Range4G;
-                gyro.sampleFrequency = sampleFrequency;
-                gyro.fullScaleRange = MBLGyroBMI160Range500;
-                
-                NSLog(@"Starting log of device %d",i);
-                [currdevice.accelerometer.dataReadyEvent startNotificationsWithHandlerAsync:^(MBLAccelerometerData *obj, NSError *error) {
-                    if (error) {
-                        NSLog(@"Error in accelerometer data.");
-                        [self disconnectedAlert:currdevice.name];
-                        [self.accelerometerDataArrays[i] addObject:@[@"NaN",@"NaN",@"NaN",@"NaN"]];
-                    } else {
-                        [self.accelerometerDataArrays[i] addObject:
-                                @[obj.timestamp,@(obj.x),@(obj.y),@(obj.z)]];
-                    }
-                }];
-                [currdevice.gyro.dataReadyEvent startNotificationsWithHandlerAsync:^(MBLGyroData *obj,NSError *error) {
-                    if (error) {
-                        NSLog(@"Error in gyrometer data.");
-                        [self.gyroDataArrays[i] addObject: @[@"NaN",@"NaN",@"NaN",@"NaN"]];
-                    } else {
-                        [self.gyroDataArrays[i] addObject: @[obj.timestamp,@(obj.x),@(obj.y),@(obj.z)]];
-                    }
-                }];
-                i++;
-            }//endif
-        }
-        [hud hide:YES afterDelay:0.5];
-        [self disable_button:_startRecordingButton];
-        [self enable_button:_stopRecordingButton];
-    }];
+    if ([self checkForConnectedDevices]) {
+        MBProgressHUD *hud = [self busyIndicator:@"Starting..."];
+        
+        [manager retrieveSavedMetaWearsWithHandler:^(NSArray *listOfDevices) {
+            int i = 0;
+            for (MBLMetaWear *currdevice in listOfDevices) {
+                if ([connectedDevices indexOfObject:currdevice.name]!=NSNotFound) {
+                    //Initialize arrays for collecting data.
+                    self.accelerometerDataArrays[i] = [[NSMutableArray alloc] initWithCapacity:INITIAL_CAPACITY];
+                    self.gyroDataArrays[i] = [[NSMutableArray alloc] initWithCapacity:INITIAL_CAPACITY];
+                    
+                    //Set accelerometer parameters.
+                    MBLAccelerometerBMI160 *accelerometer = (MBLAccelerometerBMI160*) currdevice.accelerometer;
+                    MBLGyroBMI160 *gyro = (MBLGyroBMI160*) currdevice.gyro;
+                    
+                    accelerometer.sampleFrequency = sampleFrequency;
+                    accelerometer.fullScaleRange = MBLAccelerometerBMI160Range4G;
+                    gyro.sampleFrequency = sampleFrequency;
+                    gyro.fullScaleRange = MBLGyroBMI160Range500;
+                    
+                    NSLog(@"Starting log of device %d",i);
+                    [currdevice.accelerometer.dataReadyEvent
+                     startNotificationsWithHandlerAsync:^(MBLAccelerometerData *obj, NSError *error) {
+                        if (error) {
+                            NSLog(@"Error in accelerometer data.");
+                            [self disconnectedAlert:currdevice.name];
+                            [self.accelerometerDataArrays[i] addObject:@[@"NaN",@"NaN",@"NaN",@"NaN"]];
+                        } else {
+                            [self.accelerometerDataArrays[i] addObject:
+                                    @[obj.timestamp,@(obj.x),@(obj.y),@(obj.z)]];
+                        }
+                    }];
+                    [currdevice.gyro.dataReadyEvent
+                     startNotificationsWithHandlerAsync:^(MBLGyroData *obj,NSError *error) {
+                        if (error) {
+                            NSLog(@"Error in gyrometer data.");
+                            [self.gyroDataArrays[i] addObject: @[@"NaN",@"NaN",@"NaN",@"NaN"]];
+                        } else {
+                            [self.gyroDataArrays[i] addObject: @[obj.timestamp,@(obj.x),@(obj.y),@(obj.z)]];
+                        }
+                    }];
+                    i++;
+                }//endif
+            }
+            [hud hide:YES afterDelay:0.5];
+            [self disable_button:_startRecordingButton];
+            [self enable_button:_stopRecordingButton];
+        }];
+    }
 }
 
 - (IBAction)stopRecording:(id)sender {
@@ -388,37 +392,40 @@
 
 
 - (IBAction)startLogRecording:(id)sender {
-    MBProgressHUD *hud = [self busyIndicator:@"Starting..."];
-    
-    [manager retrieveSavedMetaWearsWithHandler:^(NSArray *listOfDevices) {
-        int i = 0;
-        for (MBLMetaWear *currdevice in listOfDevices) {
-            if ([connectedDevices indexOfObject:currdevice.name]!=NSNotFound) {
-                currdevice.settings.circularBufferLog=YES;
-                
-                //Initialize arrays for collecting data.
-                self.accelerometerDataArrays[i] = [[NSMutableArray alloc] initWithCapacity:INITIAL_CAPACITY];
-                self.gyroDataArrays[i] = [[NSMutableArray alloc] initWithCapacity:INITIAL_CAPACITY];
-                
-                //Set accelerometer parameters.
-                MBLAccelerometerBMI160 *accelerometer = (MBLAccelerometerBMI160*) currdevice.accelerometer;
-                MBLGyroBMI160 *gyro = (MBLGyroBMI160*) currdevice.gyro;
-                
-                accelerometer.sampleFrequency = sampleFrequency;
-                accelerometer.fullScaleRange = MBLAccelerometerBMI160Range4G;
-                gyro.sampleFrequency = sampleFrequency;
-                gyro.fullScaleRange = MBLGyroBMI160Range500;
-                
-                NSLog(@"Starting log of device %d",i);
-                [currdevice.accelerometer.dataReadyEvent startLoggingAsync];
-                [currdevice.gyro.dataReadyEvent startLoggingAsync];
-                i++;
+    // Check if there are any connected devices.
+    if ([self checkForConnectedDevices]) {
+        MBProgressHUD *hud = [self busyIndicator:@"Starting..."];
+        
+        [manager retrieveSavedMetaWearsWithHandler:^(NSArray *listOfDevices) {
+            int i = 0;
+            for (MBLMetaWear *currdevice in listOfDevices) {
+                if ([connectedDevices indexOfObject:currdevice.name]!=NSNotFound) {
+                    currdevice.settings.circularBufferLog=YES;
+                    
+                    //Initialize arrays for collecting data.
+                    self.accelerometerDataArrays[i] = [[NSMutableArray alloc] initWithCapacity:INITIAL_CAPACITY];
+                    self.gyroDataArrays[i] = [[NSMutableArray alloc] initWithCapacity:INITIAL_CAPACITY];
+                    
+                    //Set accelerometer parameters.
+                    MBLAccelerometerBMI160 *accelerometer = (MBLAccelerometerBMI160*) currdevice.accelerometer;
+                    MBLGyroBMI160 *gyro = (MBLGyroBMI160*) currdevice.gyro;
+                    
+                    accelerometer.sampleFrequency = sampleFrequency;
+                    accelerometer.fullScaleRange = MBLAccelerometerBMI160Range4G;
+                    gyro.sampleFrequency = sampleFrequency;
+                    gyro.fullScaleRange = MBLGyroBMI160Range500;
+                    
+                    NSLog(@"Starting log of device %d",i);
+                    [currdevice.accelerometer.dataReadyEvent startLoggingAsync];
+                    [currdevice.gyro.dataReadyEvent startLoggingAsync];
+                    i++;
+                }
             }
-        }
-        [hud hide:YES afterDelay:0.5];
-        [self disable_button:_startLoggingButton];
-        [self enable_button:_stopLoggingButton];
-    }];
+            [hud hide:YES afterDelay:0.5];
+            [self disable_button:_startLoggingButton];
+            [self enable_button:_stopLoggingButton];
+        }];
+    }
 }
 
 - (IBAction)stopLogRecording:(id)sender {
@@ -474,7 +481,6 @@
         [self enable_button:_startLoggingButton];
     }];
 }
-
 
 
 - (IBAction)saveFiles:(id)sender {
@@ -548,6 +554,7 @@
     NSLog(@"Done writing.");
 }
 
+
 - (IBAction)disconnectDevices:(id)sender {
     MBProgressHUD *hud = [self busyIndicator:@"Disconnecting..."];
     [connectedDevices removeAllObjects];
@@ -575,6 +582,7 @@
     [hud hide:YES afterDelay:0.5];
 }
 
+
 - (IBAction)clearFilesButton:(id)sender {
     UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"Please confirm."
                                    message:@"Delete all files?"
@@ -590,6 +598,7 @@
     [alert addAction:noAction];
     [self presentViewController:alert animated:NO completion:nil];
 }
+
 
 - (IBAction)exitProgram:(id)sender {
     //Disconnect devices before exiting.
@@ -636,6 +645,21 @@
                                   UIAlertActionStyleDefault handler:nil];
     [alert addAction:closeAction];
     [self presentViewController:alert animated:NO completion:nil];
+}
+
+- (bool)checkForConnectedDevices {
+    if ([connectedDevices count]==0) {
+        UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"No connected devices."
+                                     message:@"Must connect some devices first."
+                                     preferredStyle:UIAlertControllerStyleAlert];
+        UIAlertAction *closeAction = [UIAlertAction actionWithTitle:@"Close"
+                                        style:UIAlertActionStyleDefault handler:nil];
+        [alert addAction:closeAction];
+        [self presentViewController:alert animated:NO completion:nil];
+        return NO;
+    } else {
+        return YES;
+    }
 }
 
 - (void)clearTable {
