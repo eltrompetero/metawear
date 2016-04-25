@@ -11,8 +11,8 @@
 #import <CoreBluetooth/CoreBluetooth.h>
 
 @interface ViewController : UIViewController
-@property (strong, nonatomic) NSMutableArray *accelerometerDataArrays;
-@property (strong, nonatomic) NSMutableArray *gyroDataArrays;
+@property (strong, atomic) NSMutableArray *accelerometerDataArrays;
+@property (strong, atomic) NSMutableArray *gyroDataArrays;
 @property (strong, atomic) NSMutableArray *deviceIdentifiers;
 @property (strong, atomic) NSMutableArray *deviceInformation;
 @property (strong, atomic) CBCentralManager *bluetoothManager;

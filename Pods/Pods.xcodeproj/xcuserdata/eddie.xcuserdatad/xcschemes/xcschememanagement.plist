@@ -4,6 +4,11 @@
 <dict>
 	<key>SchemeUserState</key>
 	<dict>
+		<key>AutoCoding.xcscheme</key>
+		<dict>
+			<key>isShown</key>
+			<false/>
+		</dict>
 		<key>Bolts.xcscheme</key>
 		<dict>
 			<key>isShown</key>
@@ -22,12 +27,17 @@
 	</dict>
 	<key>SuppressBuildableAutocreation</key>
 	<dict>
+		<key>58634C8F99024001516024D5597562C8</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
 		<key>6095DE398C2BCE7C24317310CA12FDDD</key>
 		<dict>
 			<key>primary</key>
 			<true/>
 		</dict>
-		<key>B760990413370DB6523583D3EC5CE383</key>
+		<key>DEE18CF38512E353384CCF9CF47B8B33</key>
 		<dict>
 			<key>primary</key>
 			<true/>

@@ -1,14 +1,17 @@
 PODS:
+  - AutoCoding (2.2.1)
   - Bolts/Tasks (1.7.0)
   - MBProgressHUD (0.9.2)
   - Metawear-iOSAPI (2.3.2):
     - Bolts/Tasks (~> 1.7)
 
 DEPENDENCIES:
+  - AutoCoding
   - MBProgressHUD (~> 0.9.2)
   - Metawear-iOSAPI
 
 SPEC CHECKSUMS:
+  AutoCoding: b47e528426c84346371dd532b8e6458929e4da34
   Bolts: a0058fa3b331c5a1e4402d534f2dae36dbff31e4
   MBProgressHUD: 1569cf7ace17a8bac47aabfbb8580a49690386d1
   Metawear-iOSAPI: fd24cd6ee9eac4310937d87d65df40fe76b3ed0d

@@ -183,6 +183,13 @@
                                             <action selector="refresh_picker:" destination="BYZ-38-t0r" eventType="touchUpInside" id="wkx-Qf-5vQ"/>
                                         </connections>
                                     </button>
+                                    <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ewp-8F-YiP">
+                                        <rect key="frame" x="272" y="172" width="39" height="30"/>
+                                        <state key="normal" title="Reset"/>
+                                        <connections>
+                                            <action selector="reset_connected_devices:" destination="BYZ-38-t0r" eventType="touchUpInside" id="8Og-cN-AXD"/>
+                                        </connections>
+                                    </button>
                                 </subviews>
                             </scrollView>
                         </subviews>

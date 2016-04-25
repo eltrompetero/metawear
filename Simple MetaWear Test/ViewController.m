@@ -358,7 +358,8 @@
                             NSLog(@"Error in gyrometer data.");
                             [self.gyroDataArrays[i] addObject: @[@"NaN",@"NaN",@"NaN",@"NaN"]];
                         } else {
-                            [self.gyroDataArrays[i] addObject: @[obj.timestamp,@(obj.x),@(obj.y),@(obj.z)]];
+                            [self.gyroDataArrays[i] addObject:
+                                    @[obj.timestamp,@(obj.x),@(obj.y),@(obj.z)]];
                         }
                     }];
                     i++;
@@ -500,59 +501,58 @@
     NSDate *timeNow = [NSDate date];
     NSString *strTimeNow = [dateFormatter stringFromDate:timeNow];
     
-    [[manager retrieveSavedMetaWearsAsync] success:^(NSArray *listOfDevices) {
-        unsigned long int gyroCount,accelCount,count;
-        
-        for (int i=0; i<[self.accelerometerDataArrays count]; i++) {
-            //Combine arrays.
-            NSMutableArray *combinedData = [NSMutableArray array];
-            //Find longer array and save up to length of shorter array because presumably they are measured at the same time points.
-            gyroCount = [self.gyroDataArrays[i] count];
-            accelCount = [self.accelerometerDataArrays[i] count];
-            if (gyroCount<accelCount) {
-                NSLog(@"Gyro has less measurements (%lu vs %lu).",gyroCount,accelCount);
-                count = gyroCount;
-            } else {
-                NSLog(@"Accel has less measurements (%lu vs %lu).",gyroCount,accelCount);
-                count = accelCount;
-            }
-            // Columns of [timeStamp,x,y,z,timeStamp,x,y,z].
-            for (int j=0;j<count;j++ ) {
-                combinedData[j] =@[
-                    [dateFormatter stringFromDate:self.accelerometerDataArrays[i][j][0]],
-                    self.accelerometerDataArrays[i][j][1],
-                    self.accelerometerDataArrays[i][j][2],
-                    self.accelerometerDataArrays[i][j][3],
-                    [dateFormatter stringFromDate:self.gyroDataArrays[i][j][0]],
-                    self.gyroDataArrays[i][j][1],
-                    self.gyroDataArrays[i][j][2],
-                    self.gyroDataArrays[i][j][3]
-                    ];
-            }
-            NSLog(@"Done reading out data arrays.");
-            
-            // Write data to file.
-            NSString *path = [documentsDirectory stringByAppendingPathComponent:
-                    [NSString stringWithFormat:@"%@_%@_sample%d.plist",
-                     strTimeNow,deviceIdentifiers[i],sampleFrequency]];
-            [combinedData writeToFile:path atomically:YES];
-            if ([[NSFileManager defaultManager] isWritableFileAtPath:path]) {
-                NSLog(@"%@ writable\n",path);
-            }else {
-                NSLog(@"%@ not writable\n",path);
-            }
+    unsigned long int gyroCount,accelCount,count;
+    
+    for (int i=0; i<[self.accelerometerDataArrays count]; i++) {
+        //Combine arrays.
+        NSMutableArray *combinedData = [NSMutableArray array];
+        //Find longer array and save up to length of shorter array because presumably they are measured at the same time points.
+        gyroCount = [self.gyroDataArrays[i] count];
+        accelCount = [self.accelerometerDataArrays[i] count];
+        if (gyroCount<accelCount) {
+            NSLog(@"Device %@ gyro has less measurements (%lu vs %lu).",deviceIdentifiers[i],gyroCount,accelCount);
+            count = gyroCount;
+        } else {
+            NSLog(@"Device %@ accel has less measurements (%lu vs %lu).",deviceIdentifiers[i],gyroCount,accelCount);
+            count = accelCount;
         }
-        [hud hide:YES afterDelay:0.5];
+        // Columns of [timeStamp,x,y,z,timeStamp,x,y,z].
+        for (int j=0;j<count;j++ ) {
+            combinedData[j] =@[
+                [dateFormatter stringFromDate:self.accelerometerDataArrays[i][j][0]],
+                self.accelerometerDataArrays[i][j][1],
+                self.accelerometerDataArrays[i][j][2],
+                self.accelerometerDataArrays[i][j][3],
+                [dateFormatter stringFromDate:self.gyroDataArrays[i][j][0]],
+                self.gyroDataArrays[i][j][1],
+                self.gyroDataArrays[i][j][2],
+                self.gyroDataArrays[i][j][3]
+                ];
+        }
+        NSLog(@"Done reading out data arrays.");
         
-        // Show datetime prefix in alert box.
-        UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"Saved files"
-                   message:[NSString stringWithFormat:@"With prefix %@",strTimeNow]
-                   preferredStyle:UIAlertControllerStyleAlert];
-        UIAlertAction *closeAction = [UIAlertAction actionWithTitle:@"Close" style:
-                                      UIAlertActionStyleDefault handler:nil];
-        [alert addAction:closeAction];
-        [self presentViewController:alert animated:NO completion:nil];
-    }];
+        // Write data to file.
+        NSString *path = [documentsDirectory stringByAppendingPathComponent:
+                [NSString stringWithFormat:@"%@_%@_sample%d.plist",
+                 strTimeNow,deviceIdentifiers[i],sampleFrequency]];
+        [combinedData writeToFile:path atomically:YES];
+        if ([[NSFileManager defaultManager] isWritableFileAtPath:path]) {
+            NSLog(@"%@ writable\n",path);
+        }else {
+            NSLog(@"%@ not writable\n",path);
+        }
+    }
+    [hud hide:YES afterDelay:0.5];
+    
+    // Show datetime prefix in alert box.
+    UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"Saved files"
+               message:[NSString stringWithFormat:@"With prefix %@",strTimeNow]
+               preferredStyle:UIAlertControllerStyleAlert];
+    UIAlertAction *closeAction = [UIAlertAction actionWithTitle:@"Close" style:
+                                  UIAlertActionStyleDefault handler:nil];
+    [alert addAction:closeAction];
+    [self presentViewController:alert animated:NO completion:nil];
+    
     NSLog(@"Done writing.");
 }
 
