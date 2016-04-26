@@ -396,6 +396,53 @@
 }
 
 
+- (IBAction)resetLogging:(id)sender {
+    // Check if there are any connected devices.
+    if ([self checkForConnectedDevices]) {
+        MBProgressHUD *hud = [self busyIndicator:@"Starting..."];
+        
+        [[manager retrieveSavedMetaWearsAsync] success:^(NSArray *listOfDevices) {
+            for (MBLMetaWear *currdevice in listOfDevices) {
+                if ([connectedDevices containsObject:currdevice.name]) {
+                    currdevice.settings.circularBufferLog=YES;
+                    
+                    //Set accelerometer parameters.
+                    MBLAccelerometerBMI160 *accelerometer = (MBLAccelerometerBMI160*) currdevice.accelerometer;
+                    MBLGyroBMI160 *gyro = (MBLGyroBMI160*) currdevice.gyro;
+                    
+                    accelerometer.sampleFrequency = sampleFrequency;
+                    accelerometer.fullScaleRange = MBLAccelerometerBoschRange4G;
+                    gyro.sampleFrequency = sampleFrequency;
+                    gyro.fullScaleRange = MBLGyroBMI160Range500;
+                    
+                    [currdevice.led flashLEDColorAsync:[UIColor blueColor]
+                                         withIntensity:0.8
+                                       numberOfFlashes:1];
+                    [currdevice.led flashLEDColorAsync:[UIColor greenColor]
+                                         withIntensity:0.8
+                                       numberOfFlashes:1];
+                    
+                    [[currdevice.accelerometer.dataReadyEvent downloadLogAndStopLoggingAsync:YES
+                     progressHandler:^(float number) {
+                         // Update progress bar, as this can take upwards of one minute to download a full log
+                         [self.downloadProgressAccel setText:[NSString stringWithFormat:@"%f",number*100]];
+                     }] success:^(NSArray<MBLNumericData *> * _Nonnull result) {}];
+
+                    [[currdevice.gyro.dataReadyEvent downloadLogAndStopLoggingAsync:YES
+                                                                progressHandler:^(float number) {
+                        // Update progress bar using.
+                        [self.downloadProgressGyro setText:[NSString stringWithFormat:@"%f",number*100]];
+                                            }] success:^(NSArray<MBLNumericData *> * _Nonnull result) {}];
+                }//endif
+            }//endfor
+        }];
+        [hud hide:YES afterDelay:0.5];
+    } else {
+        //Show popup.
+    }
+}
+
+
 - (IBAction)startLogRecording:(id)sender {
     [self initialize_data_arrays];
     
@@ -433,6 +480,7 @@
         }];
     }
 }
+
 
 - (IBAction)stopLogRecording:(id)sender {
     MBProgressHUD *hud = [self busyIndicator:@"Stopping..."];

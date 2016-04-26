@@ -21,7 +21,7 @@
                                 <rect key="frame" x="0.0" y="15" width="350" height="1000"/>
                                 <subviews>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="No devices." textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="xwv-2A-SnB">
-                                        <rect key="frame" x="8" y="376" width="393" height="109"/>
+                                        <rect key="frame" x="8" y="376" width="154" height="109"/>
                                         <fontDescription key="fontDescription" type="system" pointSize="9"/>
                                         <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                                         <nil key="highlightedColor"/>
@@ -183,11 +183,11 @@
                                             <action selector="refresh_picker:" destination="BYZ-38-t0r" eventType="touchUpInside" id="wkx-Qf-5vQ"/>
                                         </connections>
                                     </button>
-                                    <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ewp-8F-YiP">
-                                        <rect key="frame" x="272" y="172" width="39" height="30"/>
-                                        <state key="normal" title="Reset"/>
+                                    <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="dYF-Oa-xH3">
+                                        <rect key="frame" x="230" y="416" width="94" height="30"/>
+                                        <state key="normal" title="Reset logging"/>
                                         <connections>
-                                            <action selector="reset_connected_devices:" destination="BYZ-38-t0r" eventType="touchUpInside" id="8Og-cN-AXD"/>
+                                            <action selector="resetLogging:" destination="BYZ-38-t0r" eventType="touchUpInside" id="iVO-3n-vRq"/>
                                         </connections>
                                     </button>
                                 </subviews>
@@ -195,6 +195,10 @@
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
                     </view>
+                    <toolbarItems>
+                        <barButtonItem title="Item" id="ap0-DL-Phv"/>
+                    </toolbarItems>
+                    <simulatedToolbarMetrics key="simulatedBottomBarMetrics"/>
                     <freeformSimulatedSizeMetrics key="simulatedDestinationMetrics"/>
                     <size key="freeformSize" width="350" height="1000"/>
                     <connections>
