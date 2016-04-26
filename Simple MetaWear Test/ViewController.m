@@ -236,7 +236,7 @@
             // Connect to the device first.
             if ([selectedDeviceIdentifiers containsObject:currdevice.name] &&
                 [connectedDevices containsObject:currdevice.name]==NO) {
-                [currdevice connectWithTimeout:20 handler:^(NSError *error) {
+                [currdevice connectWithTimeout:30 handler:^(NSError *error) {
                     if ([error.domain isEqualToString:kMBLErrorDomain] &&
                         error.code == kMBLErrorConnectionTimeout) {
                         [self popup_title:@"Could not connect"
@@ -327,13 +327,16 @@
         
         [[manager retrieveSavedMetaWearsAsync] success:^(NSArray *listOfDevices) {
             int ix;
+            MBLAccelerometerBMI160 *accelerometer;
+            MBLGyroBMI160 *gyro;
+            
             for (MBLMetaWear *currdevice in listOfDevices) {
                 if ([connectedDevices containsObject:currdevice.name]) {
                     ix = (int) [connectedDevices indexOfObject:currdevice.name];
                     
                     //Set accelerometer parameters.
-                    MBLAccelerometerBMI160 *accelerometer = (MBLAccelerometerBMI160*) currdevice.accelerometer;
-                    MBLGyroBMI160 *gyro = (MBLGyroBMI160*) currdevice.gyro;
+                    accelerometer = (MBLAccelerometerBMI160*) currdevice.accelerometer;
+                    gyro = (MBLGyroBMI160*) currdevice.gyro;
                     
                     accelerometer.sampleFrequency = sampleFrequency;
                     accelerometer.fullScaleRange = MBLAccelerometerBoschRange4G;
@@ -417,6 +420,9 @@
                     gyro.fullScaleRange = MBLGyroBMI160Range500;
                     
                     NSLog(@"Starting log of device %d",ix);
+                    [currdevice.led flashLEDColorAsync:[UIColor blueColor]
+                                         withIntensity:0.8
+                                       numberOfFlashes:5];
                     [currdevice.accelerometer.dataReadyEvent startLoggingAsync];
                     [currdevice.gyro.dataReadyEvent startLoggingAsync];
                 }
@@ -432,20 +438,27 @@
     MBProgressHUD *hud = [self busyIndicator:@"Stopping..."];
     
     [[manager retrieveSavedMetaWearsAsync] success:^(NSArray *listOfDevices) {
-        int ix;
+        int ix=0;
         for (MBLMetaWear *device in listOfDevices) {
             if ([connectedDevices containsObject:device.name]) {
                 ix = (int) [connectedDevices indexOfObject:device.name];
                 
                 //Stop streaming data and store in local data arrays.
-                [[device.accelerometer.dataReadyEvent downloadLogAndStopLoggingAsync:YES progressHandler:^(float number) {
+                [device.led flashLEDColorAsync:[UIColor redColor]
+                                 withIntensity:0.8
+                               numberOfFlashes:5];
+                [[device.accelerometer.dataReadyEvent downloadLogAndStopLoggingAsync:YES
+                                                                     progressHandler:^(float number) {
                     // Update progress bar, as this can take upwards of one minute to download a full log
                     [self.downloadProgressAccel setText:[NSString stringWithFormat:@"%f",number*100]];
                 }] success:^(NSArray<MBLNumericData *> * _Nonnull result) {
+                    NSString *strData;
+                    NSArray *entries;
+                    
                     // array contains all the log entries
                     for (MBLNumericData *entry in result) {
-                        NSString *strData = [NSString stringWithFormat:@"%@",entry];
-                        NSArray *entries = [strData componentsSeparatedByString:@","];
+                        strData = [NSString stringWithFormat:@"%@",entry];
+                        entries = [strData componentsSeparatedByString:@","];
                         
                         [self.accelerometerDataArrays[ix] addObject:
                                     @[entry.timestamp,
@@ -460,10 +473,13 @@
                     // Update progress bar using.
                     [self.downloadProgressGyro setText:[NSString stringWithFormat:@"%f",number*100]];
                 }] success:^(NSArray<MBLNumericData *> * _Nonnull result) {
+                    NSString *strData;
+                    NSArray *entries;
+                    
                     // array contains all the log entries
                     for (MBLNumericData *entry in result) {
-                        NSString *strData = [NSString stringWithFormat:@"%@",entry];
-                        NSArray *entries = [strData componentsSeparatedByString:@","];
+                        strData = [NSString stringWithFormat:@"%@",entry];
+                        entries = [strData componentsSeparatedByString:@","];
                         
                         [self.gyroDataArrays[ix] addObject:
                                      @[entry.timestamp,
@@ -565,8 +581,9 @@
     alert = [UIAlertController alertControllerWithTitle:@"Saved files"
                                                 message:msg
                                          preferredStyle:UIAlertControllerStyleAlert];
-    closeAction = [UIAlertAction actionWithTitle:@"Close" style:
-                   UIAlertActionStyleDefault handler:nil];
+    closeAction = [UIAlertAction actionWithTitle:@"Close"
+                                           style:UIAlertActionStyleDefault
+                                         handler:nil];
     [alert addAction:closeAction];
     [self presentViewController:alert animated:NO completion:nil];
     
