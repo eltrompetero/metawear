@@ -508,12 +508,16 @@
                     gyro.sampleFrequency = sampleFrequency;
                     gyro.fullScaleRange = MBLGyroBMI160Range500;
                     
-                    NSLog(@"Starting log of device %d",ix);
+                    
                     [currdevice.led flashLEDColorAsync:[UIColor blueColor]
                                          withIntensity:0.8
                                        numberOfFlashes:5];
                     [currdevice.accelerometer.dataReadyEvent startLoggingAsync];
+
                     [currdevice.gyro.dataReadyEvent startLoggingAsync];
+                    NSLog(@"Device %@ start logging? %d, %d",currdevice.name,
+                                    [currdevice.accelerometer.dataReadyEvent isLogging],
+                                    [currdevice.gyro.dataReadyEvent isLogging]);
                 }
             }
             [hud hide:YES afterDelay:0.5];
@@ -536,7 +540,7 @@
                 [device.led flashLEDColorAsync:[UIColor redColor]
                                  withIntensity:0.8
                                numberOfFlashes:5];
-                [[device.accelerometer.dataReadyEvent downloadLogAndStopLoggingAsync:YES
+                [[[device.accelerometer.dataReadyEvent downloadLogAndStopLoggingAsync:YES
                                                                      progressHandler:^(float number) {
                     // Update progress bar, as this can take upwards of one minute to download a full log
                     [self.downloadProgressAccel setText:[NSString stringWithFormat:@"%f",number*100]];
@@ -555,9 +559,14 @@
                                       @([entries[1] floatValue]),
                                       @([entries[2] floatValue])]];
                     }
+                    NSLog(@"Device %@ still logging? %d, %d",device.name,
+                                        [device.accelerometer.dataReadyEvent isLogging],
+                                        [device.gyro.dataReadyEvent isLogging]);
+                }] failure:^(NSError* error) {
+                    NSLog(@"Failed to get accelerometer data!.");
                 }];
                 
-                [[device.gyro.dataReadyEvent downloadLogAndStopLoggingAsync:YES
+                [[[device.gyro.dataReadyEvent downloadLogAndStopLoggingAsync:YES
                                                             progressHandler:^(float number) {
                     // Update progress bar using.
                     [self.downloadProgressGyro setText:[NSString stringWithFormat:@"%f",number*100]];
@@ -576,6 +585,8 @@
                                        @([entries[1] floatValue]),
                                        @([entries[2] floatValue])]];
                     }
+                }] failure:^(NSError* error) {
+                    NSLog(@"Failed to get gyrometer data!.");
                 }];
                 
                 NSLog(@"Stopping record %d",ix);
@@ -886,7 +897,7 @@
                 handler(error);
             }
         } else {
-            [device connectWithTimeout:15 handler:^(NSError *error) {
+            [device connectWithTimeout:20 handler:^(NSError *error) {
                 if (handler) {
                     handler(error);
                 }
