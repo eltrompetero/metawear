@@ -523,7 +523,7 @@
                                     [currdevice.gyro.dataReadyEvent isLogging]);
                 }
             }
-            [hud hide:YES afterDelay:0.5];
+            [hud hide:YES];
             [self disable_button:_startLoggingButton];
             [self enable_button:_stopLoggingButton];
         }];
@@ -532,11 +532,10 @@
 
 
 - (IBAction)stopLogRecording:(id)sender {
-    MBProgressHUD *hud = [self busyIndicator:@"Stopping..."];
-    
     [[manager retrieveSavedMetaWearsAsync] success:^(NSArray *listOfDevices) {
         for (MBLMetaWear *device in listOfDevices) {
             if ([connectedDevices containsObject:device.name]) {
+                MBProgressHUD *hud = [self busyIndicator:@"Stopping..."];
                 int ix = (int) [connectedDevices indexOfObject:device.name];
                 
                 //Stop streaming data and store in local data arrays.
@@ -588,15 +587,15 @@
                                        @([entries[1] floatValue]),
                                        @([entries[2] floatValue])]];
                     }
+                    [hud hide:YES];
                 }] failure:^(NSError* error) {
                     NSLog(@"Failed to get gyrometer data!.");
+                    [hud hide:YES];
                 }];
                 
                 NSLog(@"Stopping record %d",ix);
             }
         }
-        
-        [hud hide:YES afterDelay:0.5];
         [self disable_button:_stopLoggingButton];
         [self enable_button:_resetLoggingButton];
     }];
