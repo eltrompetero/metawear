@@ -17,6 +17,7 @@
     NSArray *pickerData;
     int sampleFrequency;
     NSMutableArray *connectedDevices;
+    NSArray<MBLMetaWear *> *connectedDevicesFrontEnds;
 }
 @synthesize accelerometerDataArrays,gyroDataArrays;
 @synthesize connectedDevicesLabel;
@@ -344,6 +345,10 @@
                     gyro.fullScaleRange = MBLGyroBMI160Range500;
                     
                     NSLog(@"Starting log of device %d",ix);
+                    [currdevice.led flashLEDColorAsync:[UIColor blueColor]
+                                         withIntensity:0.8
+                                       numberOfFlashes:5];
+                    
                     [currdevice.accelerometer.dataReadyEvent
                      startNotificationsWithHandlerAsync:^(MBLAccelerometerData *obj, NSError *error) {
                         if (error) {
@@ -382,6 +387,10 @@
         for (MBLMetaWear *device in listOfDevices) {
             //Stop streaming data.
             if ([connectedDevices containsObject:device.name]) {
+                [device.led flashLEDColorAsync:[UIColor redColor]
+                                 withIntensity:0.8
+                               numberOfFlashes:5];
+            
                 [device.accelerometer.dataReadyEvent stopNotificationsAsync];
                 [device.gyro.dataReadyEvent stopNotificationsAsync];
                 NSLog(@"Stopping record %i",i);
@@ -400,10 +409,65 @@
     // Check if there are any connected devices.
     if ([self checkForConnectedDevices]) {
         MBProgressHUD *hud = [self busyIndicator:@"Starting..."];
+        [self clear_device_logs];
+        [hud hide:YES];
+    } else {
+        //Show popup.
+    }
+}
+
+
+-(void)clear_device_logs {
+    // Iterate through connected devices and stop logging and clear logs.
+    [[manager retrieveSavedMetaWearsAsync] success:^(NSArray *listOfDevices) {
+        for (MBLMetaWear *currdevice in listOfDevices) {
+            if ([connectedDevices containsObject:currdevice.name]) {
+                MBProgressHUD *hud = [MBProgressHUD showHUDAddedTo:[UIApplication sharedApplication].keyWindow
+                                                          animated:YES];
+                [currdevice.led flashLEDColorAsync:[UIColor blueColor]
+                                     withIntensity:0.8
+                                   numberOfFlashes:1];
+                [currdevice.led flashLEDColorAsync:[UIColor greenColor]
+                                     withIntensity:0.8
+                                   numberOfFlashes:1];
+                
+                
+                hud.mode = MBProgressHUDModeIndeterminate;
+                hud.labelText = @"Clearing Log...";
+                [[[currdevice.accelerometer.dataReadyEvent downloadLogAndStopLoggingAsync:YES
+                                                                          progressHandler:^(float number) {
+                          // Update progress bar, as this can take upwards of one minute to download a full log
+                          [self.downloadProgressAccel setText:[NSString stringWithFormat:@"%f",number*100]];
+                      }] success:^(NSArray<MBLNumericData *> * _Nonnull result) {
+                          [self logCleanup:currdevice handler:^(NSError *error) {
+                              if (error) {
+                                  NSLog(@"Error clearing log.");
+                                  [hud hide:YES];
+                              } else {
+                                  NSLog(@"Success clearing log.");
+                                  [hud hide:YES];
+                              }
+                          }];
+                      }] failure:^(NSError * _Nonnull error) {
+                          NSLog(@"Failed to stop logging. Is device still connected?");
+                          [hud hide:YES];
+                      }];
+            }//endif
+        }//endfor
+    }];
+}
+
+
+- (IBAction)set_settings:(id)sender {
+    // Check if there are any connected devices.
+    if ([self checkForConnectedDevices]) {
         
         [[manager retrieveSavedMetaWearsAsync] success:^(NSArray *listOfDevices) {
+            int ix;
             for (MBLMetaWear *currdevice in listOfDevices) {
                 if ([connectedDevices containsObject:currdevice.name]) {
+                    ix = (int) [connectedDevices indexOfObject:currdevice.name];
+                    NSLog(@"Setting device %@",[connectedDevices objectAtIndex:ix]);
                     currdevice.settings.circularBufferLog=YES;
                     
                     //Set accelerometer parameters.
@@ -414,31 +478,9 @@
                     accelerometer.fullScaleRange = MBLAccelerometerBoschRange4G;
                     gyro.sampleFrequency = sampleFrequency;
                     gyro.fullScaleRange = MBLGyroBMI160Range500;
-                    
-                    [currdevice.led flashLEDColorAsync:[UIColor blueColor]
-                                         withIntensity:0.8
-                                       numberOfFlashes:1];
-                    [currdevice.led flashLEDColorAsync:[UIColor greenColor]
-                                         withIntensity:0.8
-                                       numberOfFlashes:1];
-                    
-                    [[currdevice.accelerometer.dataReadyEvent downloadLogAndStopLoggingAsync:YES
-                     progressHandler:^(float number) {
-                         // Update progress bar, as this can take upwards of one minute to download a full log
-                         [self.downloadProgressAccel setText:[NSString stringWithFormat:@"%f",number*100]];
-                     }] success:^(NSArray<MBLNumericData *> * _Nonnull result) {}];
-
-                    [[currdevice.gyro.dataReadyEvent downloadLogAndStopLoggingAsync:YES
-                                                                progressHandler:^(float number) {
-                        // Update progress bar using.
-                        [self.downloadProgressGyro setText:[NSString stringWithFormat:@"%f",number*100]];
-                                            }] success:^(NSArray<MBLNumericData *> * _Nonnull result) {}];
-                }//endif
-            }//endfor
+                }
+            }
         }];
-        [hud hide:YES afterDelay:0.5];
-    } else {
-        //Show popup.
     }
 }
 
@@ -486,10 +528,9 @@
     MBProgressHUD *hud = [self busyIndicator:@"Stopping..."];
     
     [[manager retrieveSavedMetaWearsAsync] success:^(NSArray *listOfDevices) {
-        int ix=0;
         for (MBLMetaWear *device in listOfDevices) {
             if ([connectedDevices containsObject:device.name]) {
-                ix = (int) [connectedDevices indexOfObject:device.name];
+                int ix = (int) [connectedDevices indexOfObject:device.name];
                 
                 //Stop streaming data and store in local data arrays.
                 [device.led flashLEDColorAsync:[UIColor redColor]
@@ -565,8 +606,6 @@
     
     
     hud = [self busyIndicator:@"Saving..."];
-    
-    [self stopRecording:self];
     
     NSLog(@"Writing files...");
     paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
@@ -836,5 +875,25 @@
     [button setUserInteractionEnabled:YES];
     [button setBackgroundColor:[UIColor whiteColor]];
 }
+
+- (void)logCleanup:(MBLMetaWear*)device handler:(MBLErrorHandler)handler
+{
+    // In order for the device to actaully erase the flash memory we can't be in a connection
+    // so temporally disconnect to allow flash to erase.
+    [device disconnectWithHandler:^(NSError *error) {
+        if (error) {
+            if (handler) {
+                handler(error);
+            }
+        } else {
+            [device connectWithTimeout:15 handler:^(NSError *error) {
+                if (handler) {
+                    handler(error);
+                }
+            }];
+        }
+    }];
+}
+
 
 @end
