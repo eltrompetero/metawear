@@ -74,6 +74,7 @@
     [self disable_button:_stopRecordingButton];
     [self disable_button:_stopLoggingButton];
     [self disable_button:_connectDevicesButton];
+    [self disable_button:_resetLoggingButton];
     [self disable_button:_refreshListButton];
     [self disable_button:_flashRed];
 }
@@ -414,6 +415,8 @@
     } else {
         //Show popup.
     }
+    [self disable_button:_resetLoggingButton];
+    [self enable_button:_startLoggingButton];
 }
 
 
@@ -515,7 +518,7 @@
                     [currdevice.accelerometer.dataReadyEvent startLoggingAsync];
 
                     [currdevice.gyro.dataReadyEvent startLoggingAsync];
-                    NSLog(@"Device %@ start logging? %d, %d",currdevice.name,
+                    NSLog(@"Device %@ start logging? Accel: %d, Gyro: %d",currdevice.name,
                                     [currdevice.accelerometer.dataReadyEvent isLogging],
                                     [currdevice.gyro.dataReadyEvent isLogging]);
                 }
@@ -559,7 +562,7 @@
                                       @([entries[1] floatValue]),
                                       @([entries[2] floatValue])]];
                     }
-                    NSLog(@"Device %@ still logging? %d, %d",device.name,
+                    NSLog(@"Device %@ still logging? Accel: %d, Gyro: %d",device.name,
                                         [device.accelerometer.dataReadyEvent isLogging],
                                         [device.gyro.dataReadyEvent isLogging]);
                 }] failure:^(NSError* error) {
@@ -595,7 +598,7 @@
         
         [hud hide:YES afterDelay:0.5];
         [self disable_button:_stopLoggingButton];
-        [self enable_button:_startLoggingButton];
+        [self enable_button:_resetLoggingButton];
     }];
 }
 

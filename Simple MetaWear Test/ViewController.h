@@ -34,6 +34,7 @@
 @property (weak, nonatomic) IBOutlet UIButton *startRecordingButton;
 @property (weak, nonatomic) IBOutlet UIButton *startLoggingButton;
 @property (weak, nonatomic) IBOutlet UIButton *stopLoggingButton;
+@property (weak, nonatomic) IBOutlet UIButton *resetLoggingButton;
 
 @property MBLMetaWearManager *manager;
 

@@ -216,6 +216,7 @@
                         <outlet property="downloadProgressGyro" destination="20l-nO-mW9" id="kEd-4H-l84"/>
                         <outlet property="flashRed" destination="T3B-Wh-MNi" id="RKv-nK-cdB"/>
                         <outlet property="refreshListButton" destination="0Li-O9-rN5" id="FuQ-ab-4AH"/>
+                        <outlet property="resetLoggingButton" destination="dYF-Oa-xH3" id="tYd-vI-hh3"/>
                         <outlet property="sampleFrequencyLabel" destination="O3X-6I-UDO" id="joP-VI-cgh"/>
                         <outlet property="sampleFrequencySlider" destination="efc-d9-A3e" id="UO8-Ve-n0e"/>
                         <outlet property="scroller" destination="7zg-Fe-s7c" id="mwr-tp-gBI"/>
