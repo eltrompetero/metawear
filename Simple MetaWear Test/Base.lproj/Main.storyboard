@@ -183,13 +183,6 @@
                                             <action selector="refresh_picker:" destination="BYZ-38-t0r" eventType="touchUpInside" id="wkx-Qf-5vQ"/>
                                         </connections>
                                     </button>
-                                    <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="w1o-ow-qGP">
-                                        <rect key="frame" x="268" y="274" width="30" height="30"/>
-                                        <state key="normal" title="Set"/>
-                                        <connections>
-                                            <action selector="set_settings:" destination="BYZ-38-t0r" eventType="touchUpInside" id="dgR-Zd-A6i"/>
-                                        </connections>
-                                    </button>
                                     <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="dYF-Oa-xH3">
                                         <rect key="frame" x="128" y="798" width="94" height="30"/>
                                         <state key="normal" title="Reset logging"/>
@@ -197,6 +190,26 @@
                                             <action selector="resetLogging:" destination="BYZ-38-t0r" eventType="touchUpInside" id="iVO-3n-vRq"/>
                                         </connections>
                                     </button>
+                                    <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="w1o-ow-qGP">
+                                        <rect key="frame" x="268" y="274" width="30" height="30"/>
+                                        <state key="normal" title="Set"/>
+                                        <connections>
+                                            <action selector="set_settings:" destination="BYZ-38-t0r" eventType="touchUpInside" id="dgR-Zd-A6i"/>
+                                        </connections>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Ixv-17-Hwa">
+                                        <rect key="frame" x="232" y="18" width="43" height="30"/>
+                                        <state key="normal" title="delete"/>
+                                        <connections>
+                                            <action selector="clearSavedDevices:" destination="BYZ-38-t0r" eventType="touchUpInside" id="Hvg-Jh-cW9"/>
+                                        </connections>
+                                    </button>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="hpA-Do-IY0">
+                                        <rect key="frame" x="146" y="386" width="196" height="177"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="10"/>
+                                        <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
+                                        <nil key="highlightedColor"/>
+                                    </label>
                                 </subviews>
                             </scrollView>
                         </subviews>
@@ -215,6 +228,7 @@
                         <outlet property="downloadProgressAccel" destination="0my-OJ-Rlz" id="TVm-cl-8y3"/>
                         <outlet property="downloadProgressGyro" destination="20l-nO-mW9" id="kEd-4H-l84"/>
                         <outlet property="flashRed" destination="T3B-Wh-MNi" id="RKv-nK-cdB"/>
+                        <outlet property="logLabel" destination="hpA-Do-IY0" id="1Cq-VM-L4y"/>
                         <outlet property="refreshListButton" destination="0Li-O9-rN5" id="FuQ-ab-4AH"/>
                         <outlet property="resetLoggingButton" destination="dYF-Oa-xH3" id="tYd-vI-hh3"/>
                         <outlet property="sampleFrequencyLabel" destination="O3X-6I-UDO" id="joP-VI-cgh"/>

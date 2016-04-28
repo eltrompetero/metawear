@@ -185,13 +185,17 @@
 /*******************
        Buttons
  ********************/
+- (IBAction)clearSavedDevices:(id)sender {
+    [[manager retrieveSavedMetaWearsAsync] success:^(NSArray *array) {
+        for (MBLMetaWear* device in array) {
+            NSLog(@"Delete device %@",device.name);
+            [device forgetDevice];
+        }
+        [deviceIdentifiers removeAllObjects];
+    }];
+}
+
 - (IBAction)startSearch:(id)sender {
-    //Erase list of devices. This is problematic because it runs asynchronously with the following block of code.
-//    [manager retrieveSavedMetaWearsWithHandler:^(NSArray* listOfDevices) {
-//        for (MBLMetaWear* device in listOfDevices) {
-//            [device forgetDevice];
-//        }
-//    }];
     [self disable_button:_connectDevicesButton];
     [self disable_button:_refreshListButton];
     MBProgressHUD *hud = [self busyIndicator:@"Searching..."];
@@ -199,18 +203,16 @@
     //Search for devices excluding duplicates.
     //NOTE: Might be a good idea to exclude ones with weak signals.
     [manager startScanForMetaWearsAllowDuplicates:NO handler:^(NSArray *listOfDevices) {
-        int i=0;
-        
         for (MBLMetaWear *foundDevice in listOfDevices) {
             //NOTE: will need to figure out proper naming scheme without collisions if you don't want to use identifiers
-            if ([deviceIdentifiers indexOfObject:foundDevice.name]==NSNotFound) {
+            if (![deviceIdentifiers containsObject:foundDevice.name]) {
                 [foundDevice rememberDevice];
                 [deviceIdentifiers addObject: foundDevice.name];
-                i++;
             }
-            [self enable_button:_connectDevicesButton];
-            [self enable_button:_refreshListButton];
         }
+        
+        [self enable_button:_connectDevicesButton];
+        [self enable_button:_refreshListButton];
         
         // List found metaWears.
         NSLog(@"MetaWears found:");
@@ -261,9 +263,9 @@
                         currdevice.settings.transmitPower = MBLTransmitPower4dBm;
                     }
                 }];
-                [self refreshConnectedMetaWearsLabel:self];
             }//endif
         }
+        [self refreshConnectedMetaWearsLabel:self];
         [hud hide:YES afterDelay:5.];
     }];
     [self clearTable];
@@ -323,6 +325,8 @@
 
 - (IBAction)startRecording:(id)sender {
     [self initialize_data_arrays];
+    _logLabel.text=@"";
+    NSMutableArray* logStrings = [NSMutableArray array];
     
     if ([self checkForConnectedDevices]) {
         MBProgressHUD *hud = [self busyIndicator:@"Starting..."];
@@ -331,6 +335,7 @@
             int ix;
             MBLAccelerometerBMI160 *accelerometer;
             MBLGyroBMI160 *gyro;
+            NSString* s;
             
             for (MBLMetaWear *currdevice in listOfDevices) {
                 if ([connectedDevices containsObject:currdevice.name]) {
@@ -371,9 +376,19 @@
                                     @[obj.timestamp,@(obj.x),@(obj.y),@(obj.z)]];
                         }
                     }];
+                    
+                    s = [NSString stringWithFormat:@"%@: Accel %d, Gyro %d",
+                        currdevice.name,
+                        [currdevice.accelerometer.dataReadyEvent isNotifying],
+                        [currdevice.gyro.dataReadyEvent isNotifying]];
+                    [logStrings addObject:[_logLabel.text stringByAppendingString:s]];
+                    NSLog(@"Device %@ is notifying? Accel %d, Gyro %d",currdevice.name,
+                          [currdevice.accelerometer.dataReadyEvent isNotifying],
+                          [currdevice.gyro.dataReadyEvent isNotifying]);
                 }//endif
             }
             [hud hide:YES afterDelay:0.5];
+            _logLabel.text = [logStrings componentsJoinedByString:@"\n"];
             [self disable_button:_startRecordingButton];
             [self enable_button:_stopRecordingButton];
         }];
@@ -382,9 +397,12 @@
 
 - (IBAction)stopRecording:(id)sender {
     MBProgressHUD *hud = [self busyIndicator:@"Stopping..."];
+    _logLabel.text=@"";
+    NSMutableArray* logStrings = [NSMutableArray array];
     
     [[manager retrieveSavedMetaWearsAsync] success:^(NSArray *listOfDevices) {
         int i=0;
+        NSString* s;
         for (MBLMetaWear *device in listOfDevices) {
             //Stop streaming data.
             if ([connectedDevices containsObject:device.name]) {
@@ -394,12 +412,23 @@
             
                 [device.accelerometer.dataReadyEvent stopNotificationsAsync];
                 [device.gyro.dataReadyEvent stopNotificationsAsync];
+                
+                s = [NSString stringWithFormat:@"%@: Accel %d, Gyro %d",
+                     device.name,
+                     [device.accelerometer.dataReadyEvent isNotifying],
+                     [device.gyro.dataReadyEvent isNotifying]];
+                [logStrings addObject:[_logLabel.text stringByAppendingString:s]];
+                
+                NSLog(@"Device %@ is notifying? Accel %d, Gyro %d",device.name,
+                      [device.accelerometer.dataReadyEvent isNotifying],
+                      [device.gyro.dataReadyEvent isNotifying]);
                 NSLog(@"Stopping record %i",i);
                 i++;
             }
         }
         
         [hud hide:YES afterDelay:0.5];
+        _logLabel.text = [logStrings componentsJoinedByString:@"\n"];
         [self disable_button:_stopRecordingButton];
         [self enable_button:_startRecordingButton];
     }];
@@ -513,17 +542,17 @@
                     
                     
                     [currdevice.led flashLEDColorAsync:[UIColor blueColor]
-                                         withIntensity:0.8
+                                         withIntensity:1
                                        numberOfFlashes:5];
                     [currdevice.accelerometer.dataReadyEvent startLoggingAsync];
-
                     [currdevice.gyro.dataReadyEvent startLoggingAsync];
+                    
                     NSLog(@"Device %@ start logging? Accel: %d, Gyro: %d",currdevice.name,
                                     [currdevice.accelerometer.dataReadyEvent isLogging],
                                     [currdevice.gyro.dataReadyEvent isLogging]);
                 }
             }
-            [hud hide:YES];
+            [hud hide:YES afterDelay:1];
             [self disable_button:_startLoggingButton];
             [self enable_button:_stopLoggingButton];
         }];
@@ -540,7 +569,7 @@
                 
                 //Stop streaming data and store in local data arrays.
                 [device.led flashLEDColorAsync:[UIColor redColor]
-                                 withIntensity:0.8
+                                 withIntensity:1
                                numberOfFlashes:5];
                 [[[device.accelerometer.dataReadyEvent downloadLogAndStopLoggingAsync:YES
                                                                      progressHandler:^(float number) {
@@ -561,11 +590,12 @@
                                       @([entries[1] floatValue]),
                                       @([entries[2] floatValue])]];
                     }
+                    NSLog(@"Accel %@ returns %lu data points.",device.name,[result count]);
                     NSLog(@"Device %@ still logging? Accel: %d, Gyro: %d",device.name,
                                         [device.accelerometer.dataReadyEvent isLogging],
                                         [device.gyro.dataReadyEvent isLogging]);
                 }] failure:^(NSError* error) {
-                    NSLog(@"Failed to get accelerometer data!.");
+                    NSLog(@"Failed to get accelerometer data!");
                 }];
                 
                 [[[device.gyro.dataReadyEvent downloadLogAndStopLoggingAsync:YES
@@ -587,9 +617,10 @@
                                        @([entries[1] floatValue]),
                                        @([entries[2] floatValue])]];
                     }
+                    NSLog(@"Gyro %@ returns %lu data points.",device.name,[result count]);
                     [hud hide:YES];
                 }] failure:^(NSError* error) {
-                    NSLog(@"Failed to get gyrometer data!.");
+                    NSLog(@"Failed to get gyrometer data!");
                     [hud hide:YES];
                 }];
                 
@@ -631,18 +662,22 @@
     strTimeNow = [dateFormatter stringFromDate:timeNow];
     
     for (int i=0; i<[self.accelerometerDataArrays count]; i++) {
-        //Combine arrays.
-        //Find longer array and save up to length of shorter array because presumably they are measured at the same time points.
+        // Combine arrays.
+        // Find longer array and save up to length of shorter array because presumably they are
+        // measured at the same time points.
+        // NOTE: this is not right. must save all recorded time points
         gyroCount = [self.gyroDataArrays[i] count];
         accelCount = [self.accelerometerDataArrays[i] count];
         [allCounts addObject:@(accelCount)];
         [allCounts addObject:@(gyroCount)];
         
         if (gyroCount<accelCount) {
-            NSLog(@"Device %@ gyro has less measurements (%lu vs %lu).",connectedDevices[i],gyroCount,accelCount);
+            NSLog(@"Device %@ gyro has less measurements (%lu vs %lu).",
+                    connectedDevices[i],gyroCount,accelCount);
             count = gyroCount;
         } else {
-            NSLog(@"Device %@ accel has less measurements (%lu vs %lu).",connectedDevices[i],gyroCount,accelCount);
+            NSLog(@"Device %@ accel has less measurements (%lu vs %lu).",
+                    connectedDevices[i],gyroCount,accelCount);
             count = accelCount;
         }
         // Columns of [timeStamp,x,y,z,timeStamp,x,y,z].
@@ -709,6 +744,8 @@
                         device.settings.transmitPower = MBLTransmitPower0dBm;
                     }
                 }];
+            // Erase all devices from memory.
+            [device forgetDevice];
             };
         };
         [self updateLabel:@"" :connectedDevicesLabel];
