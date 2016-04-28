@@ -204,7 +204,8 @@
     //NOTE: Might be a good idea to exclude ones with weak signals.
     [manager startScanForMetaWearsAllowDuplicates:NO handler:^(NSArray *listOfDevices) {
         for (MBLMetaWear *foundDevice in listOfDevices) {
-            //NOTE: will need to figure out proper naming scheme without collisions if you don't want to use identifiers
+            //NOTE: will need to figure out proper naming scheme without collisions if you don't
+            //want to use identifiers
             if (![deviceIdentifiers containsObject:foundDevice.name]) {
                 [foundDevice rememberDevice];
                 [deviceIdentifiers addObject: foundDevice.name];
@@ -326,6 +327,7 @@
 - (IBAction)startRecording:(id)sender {
     [self initialize_data_arrays];
     _logLabel.text=@"";
+    _logLabel.numberOfLines=[connectedDevices count];
     NSMutableArray* logStrings = [NSMutableArray array];
     
     if ([self checkForConnectedDevices]) {
@@ -398,6 +400,7 @@
 - (IBAction)stopRecording:(id)sender {
     MBProgressHUD *hud = [self busyIndicator:@"Stopping..."];
     _logLabel.text=@"";
+    _logLabel.numberOfLines=[connectedDevices count];
     NSMutableArray* logStrings = [NSMutableArray array];
     
     [[manager retrieveSavedMetaWearsAsync] success:^(NSArray *listOfDevices) {
