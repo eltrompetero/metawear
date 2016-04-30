@@ -267,6 +267,7 @@
             }//endif
         }
         [self refreshConnectedMetaWearsLabel:self];
+        [self change_sample_frequency:self];
         [hud hide:YES afterDelay:5.];
     }];
     [self clearTable];
@@ -291,6 +292,7 @@
     [self refresh_picker:self];
 }
 
+
 - (IBAction)change_sample_frequency:(id)sender {
     sampleFrequency = (int) self.sampleFrequencySlider.value;
     // Don't allow sample frequency to exceed 100 Hz.
@@ -301,6 +303,7 @@
     [_sampleFrequencySlider setValue:sampleFrequency animated:YES];
     [_sampleFrequencyLabel setText:[NSString stringWithFormat:@"%d",sampleFrequency]];
 }
+
 
 - (IBAction)flashDevice:(id)sender {
     [[manager retrieveSavedMetaWearsAsync] success:^(NSArray* listOfDevices) {
