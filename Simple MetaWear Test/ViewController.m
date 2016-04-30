@@ -640,7 +640,7 @@
 
 
 - (IBAction)saveFiles:(id)sender {
-    unsigned long int gyroCount,accelCount,count;
+    unsigned long int gyroCount,accelCount,lessCount,moreCount;
     NSMutableArray *allCounts = [NSMutableArray array];
     MBProgressHUD *hud;
     NSArray *paths;
@@ -680,24 +680,48 @@
         if (gyroCount<accelCount) {
             NSLog(@"Device %@ gyro has less measurements (%lu vs %lu).",
                     connectedDevices[i],gyroCount,accelCount);
-            count = gyroCount;
+            lessCount = gyroCount;
+            moreCount = accelCount;
         } else {
             NSLog(@"Device %@ accel has less measurements (%lu vs %lu).",
                     connectedDevices[i],gyroCount,accelCount);
-            count = accelCount;
+            lessCount = accelCount;
+            moreCount = gyroCount;
         }
         // Columns of [timeStamp,x,y,z,timeStamp,x,y,z].
-        for (int j=0;j<count;j++ ) {
-            combinedData[j] =@[
-                [dateFormatter stringFromDate:self.accelerometerDataArrays[i][j][0]],
-                self.accelerometerDataArrays[i][j][1],
-                self.accelerometerDataArrays[i][j][2],
-                self.accelerometerDataArrays[i][j][3],
-                [dateFormatter stringFromDate:self.gyroDataArrays[i][j][0]],
-                self.gyroDataArrays[i][j][1],
-                self.gyroDataArrays[i][j][2],
-                self.gyroDataArrays[i][j][3]
-                ];
+        for (int j=0;j<moreCount;j++ ) {
+            if (j<lessCount) {
+                [combinedData addObject:@[
+                    [dateFormatter stringFromDate:self.accelerometerDataArrays[i][j][0]],
+                    self.accelerometerDataArrays[i][j][1],
+                    self.accelerometerDataArrays[i][j][2],
+                    self.accelerometerDataArrays[i][j][3],
+                    [dateFormatter stringFromDate:self.gyroDataArrays[i][j][0]],
+                    self.gyroDataArrays[i][j][1],
+                    self.gyroDataArrays[i][j][2],
+                    self.gyroDataArrays[i][j][3]
+                ]];
+            } else {
+                if (gyroCount<accelCount) {
+                    [combinedData addObject:@[
+                        [dateFormatter stringFromDate:self.accelerometerDataArrays[i][j][0]],
+                        self.accelerometerDataArrays[i][j][1],
+                        self.accelerometerDataArrays[i][j][2],
+                        self.accelerometerDataArrays[i][j][3],
+                        [dateFormatter stringFromDate:self.gyroDataArrays[i][gyroCount-1][0]],
+                        @"NaN",@"NaN",@"NaN",
+                        ]];
+                } else {
+                    [combinedData addObject:@[
+                        [dateFormatter stringFromDate:self.accelerometerDataArrays[i][accelCount-1][0]],
+                        @"NaN",@"NaN",@"NaN",
+                        [dateFormatter stringFromDate:self.gyroDataArrays[i][j][0]],
+                        self.gyroDataArrays[i][j][1],
+                        self.gyroDataArrays[i][j][2],
+                        self.gyroDataArrays[i][j][3]
+                        ]];
+                }
+            }
         }
         NSLog(@"Done reading out data arrays.");
         
