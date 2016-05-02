@@ -47,7 +47,7 @@
     [_sampleFrequencySlider setValue:20];
     [_sampleFrequencySlider setMaximumValue:100];
     [_sampleFrequencySlider setMinimumValue:1];
-    [_sampleFrequencyLabel setText:[NSString stringWithFormat:@"%d",DEFAULT_SAMPLE_FREQUENCY]];
+    [_sampleFrequencyTextField setText:[NSString stringWithFormat:@"%d",DEFAULT_SAMPLE_FREQUENCY]];
     sampleFrequency=DEFAULT_SAMPLE_FREQUENCY;
     
     manager = [MBLMetaWearManager sharedManager];
@@ -59,6 +59,8 @@
     
     //Initialize data arrays.
     [self initialize_info_arrays];
+    
+    _sampleFrequencyTextField.keyboardType = UIKeyboardTypeNumberPad;
 }
 
 - (void)viewDidAppear:(BOOL) state {
@@ -182,6 +184,46 @@
 }
 
 
+
+/*******************
+ Sample frequency text.
+ ********************/
+- (IBAction)show_number_pad:(id)sender {
+    UIToolbar* numberToolbar = [[UIToolbar alloc]initWithFrame:CGRectMake(0, 0, 320, 50)];
+    numberToolbar.barStyle = UIBarStyleBlackTranslucent;
+    numberToolbar.items = @[[[UIBarButtonItem alloc]initWithTitle:@"Cancel" style:UIBarButtonItemStylePlain target:self action:@selector(cancelNumberPad)],
+                            [[UIBarButtonItem alloc]initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace target:nil action:nil],
+                            [[UIBarButtonItem alloc]initWithTitle:@"Apply" style:UIBarButtonItemStyleDone target:self action:@selector(doneWithNumberPad)]];
+    [numberToolbar sizeToFit];
+    _sampleFrequencyTextField.inputAccessoryView = numberToolbar;
+}
+
+-(void)cancelNumberPad{
+    [_sampleFrequencyTextField resignFirstResponder];
+    _sampleFrequencyTextField.text = @"";
+}
+
+-(void)doneWithNumberPad{
+    [_sampleFrequencyTextField resignFirstResponder];
+}
+
+- (IBAction)update_sample_frequency:(id)sender {
+    sampleFrequency = [_sampleFrequencyTextField.text intValue];
+    self.sampleFrequencySlider.value = sampleFrequency;
+}
+
+- (IBAction)change_sample_frequency:(id)sender {
+    sampleFrequency = (int) self.sampleFrequencySlider.value;
+    // Don't allow sample frequency to exceed 100 Hz.
+    if (([connectedDevices count]*sampleFrequency) > 100) {
+        sampleFrequency = (int) 100/[connectedDevices count];
+    }
+    
+    [_sampleFrequencySlider setValue:sampleFrequency animated:YES];
+    [_sampleFrequencyTextField setText:[NSString stringWithFormat:@"%d",sampleFrequency]];
+}
+
+
 /*******************
        Buttons
  ********************/
@@ -290,18 +332,6 @@
     [_selectDevicesTable reloadData];
     [hud hide:YES afterDelay:.5];
     [self refresh_picker:self];
-}
-
-
-- (IBAction)change_sample_frequency:(id)sender {
-    sampleFrequency = (int) self.sampleFrequencySlider.value;
-    // Don't allow sample frequency to exceed 100 Hz.
-    if (([connectedDevices count]*sampleFrequency) > 100) {
-        sampleFrequency = (int) 100/[connectedDevices count];
-    }
-    
-    [_sampleFrequencySlider setValue:sampleFrequency animated:YES];
-    [_sampleFrequencyLabel setText:[NSString stringWithFormat:@"%d",sampleFrequency]];
 }
 
 

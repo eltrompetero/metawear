@@ -21,7 +21,7 @@
 @property (weak, nonatomic) IBOutlet UITableView *selectDevicesTable;
 @property (weak, nonatomic) IBOutlet UIPickerView *devicePicker;
 @property (weak, nonatomic) IBOutlet UIScrollView *scroller;
-@property (weak, nonatomic) IBOutlet UILabel *sampleFrequencyLabel;
+@property (weak, nonatomic) IBOutlet UITextField *sampleFrequencyTextField;
 @property (weak, nonatomic) IBOutlet UISlider *sampleFrequencySlider;
 @property (weak, nonatomic) IBOutlet UILabel *downloadProgressAccel;
 @property (weak, nonatomic) IBOutlet UILabel *downloadProgressGyro;

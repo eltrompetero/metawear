@@ -98,12 +98,6 @@
                                             <action selector="change_sample_frequency:" destination="BYZ-38-t0r" eventType="valueChanged" id="ejs-BT-ygP"/>
                                         </connections>
                                     </slider>
-                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="O3X-6I-UDO">
-                                        <rect key="frame" x="178" y="550" width="42" height="21"/>
-                                        <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                        <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
-                                        <nil key="highlightedColor"/>
-                                    </label>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Sample frequency:" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Epr-My-hR9">
                                         <rect key="frame" x="11" y="550" width="144" height="21"/>
                                         <fontDescription key="fontDescription" type="system" pointSize="17"/>
@@ -216,6 +210,15 @@
                                         <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                                         <nil key="highlightedColor"/>
                                     </label>
+                                    <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="j6A-VV-2Nu">
+                                        <rect key="frame" x="163" y="544" width="97" height="30"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                        <textInputTraits key="textInputTraits" returnKeyType="done" enablesReturnKeyAutomatically="YES"/>
+                                        <connections>
+                                            <action selector="show_number_pad:" destination="BYZ-38-t0r" eventType="editingDidBegin" id="ml8-EO-Abx"/>
+                                            <action selector="update_sample_frequency:" destination="BYZ-38-t0r" eventType="editingDidEnd" id="Reg-VD-gg2"/>
+                                        </connections>
+                                    </textField>
                                 </subviews>
                             </scrollView>
                         </subviews>
@@ -237,8 +240,8 @@
                         <outlet property="logLabel" destination="hpA-Do-IY0" id="1Cq-VM-L4y"/>
                         <outlet property="refreshListButton" destination="0Li-O9-rN5" id="FuQ-ab-4AH"/>
                         <outlet property="resetLoggingButton" destination="dYF-Oa-xH3" id="tYd-vI-hh3"/>
-                        <outlet property="sampleFrequencyLabel" destination="O3X-6I-UDO" id="joP-VI-cgh"/>
                         <outlet property="sampleFrequencySlider" destination="efc-d9-A3e" id="UO8-Ve-n0e"/>
+                        <outlet property="sampleFrequencyTextField" destination="j6A-VV-2Nu" id="Bu3-Eo-UFM"/>
                         <outlet property="scroller" destination="7zg-Fe-s7c" id="mwr-tp-gBI"/>
                         <outlet property="selectDevicesTable" destination="Dmk-1V-KOY" id="oYm-Ox-fC2"/>
                         <outlet property="startLoggingButton" destination="86h-bz-TLf" id="6y6-n3-ZF8"/>
