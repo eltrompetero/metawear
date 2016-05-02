@@ -532,15 +532,19 @@
         
         [[manager retrieveSavedMetaWearsAsync] success:^(NSArray *listOfDevices) {
             int ix;
+            MBLAccelerometerBMI160 *accelerometer;
+            MBLGyroBMI160 *gyro;
+            
             for (MBLMetaWear *currdevice in listOfDevices) {
                 if ([connectedDevices containsObject:currdevice.name]) {
                     ix = (int) [connectedDevices indexOfObject:currdevice.name];
-                    NSLog(@"Setting device %@",[connectedDevices objectAtIndex:ix]);
+                    NSLog(@"Setting device %@ to sample frequency %d",
+                          [connectedDevices objectAtIndex:ix],sampleFrequency);
                     currdevice.settings.circularBufferLog=YES;
                     
                     //Set accelerometer parameters.
-                    MBLAccelerometerBMI160 *accelerometer = (MBLAccelerometerBMI160*) currdevice.accelerometer;
-                    MBLGyroBMI160 *gyro = (MBLGyroBMI160*) currdevice.gyro;
+                    accelerometer = (MBLAccelerometerBMI160*) currdevice.accelerometer;
+                    gyro = (MBLGyroBMI160*) currdevice.gyro;
                     
                     accelerometer.sampleFrequency = sampleFrequency;
                     accelerometer.fullScaleRange = MBLAccelerometerBoschRange4G;
