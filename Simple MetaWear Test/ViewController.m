@@ -10,7 +10,7 @@
 #import "MBProgressHUD.h"
 #import "SmallTableViewController.h"
 #define INITIAL_CAPACITY 20000
-#define DEFAULT_SAMPLE_FREQUENCY 20
+#define DEFAULT_SAMPLE_FREQUENCY 25
 
 @implementation ViewController
 {
@@ -18,6 +18,7 @@
     int sampleFrequency;
     NSMutableArray *connectedDevices;
     NSArray<MBLMetaWear *> *connectedDevicesFrontEnds;
+    double ALLOWED_SAMPLE_FREQUENCIES[3];
 }
 @synthesize accelerometerDataArrays,gyroDataArrays;
 @synthesize connectedDevicesLabel;
@@ -61,6 +62,10 @@
     [self initialize_info_arrays];
     
     _sampleFrequencyTextField.keyboardType = UIKeyboardTypeNumberPad;
+    
+    ALLOWED_SAMPLE_FREQUENCIES[0] = 25;
+    ALLOWED_SAMPLE_FREQUENCIES[1] = 50;
+    ALLOWED_SAMPLE_FREQUENCIES[2] = 100;
 }
 
 - (void)viewDidAppear:(BOOL) state {
@@ -210,6 +215,7 @@
 - (IBAction)update_sample_frequency:(id)sender {
     sampleFrequency = [_sampleFrequencyTextField.text intValue];
     self.sampleFrequencySlider.value = sampleFrequency;
+    [self change_sample_frequency:self];
 }
 
 - (IBAction)change_sample_frequency:(id)sender {
@@ -219,8 +225,20 @@
         sampleFrequency = (int) 100/[connectedDevices count];
     }
     
-    [_sampleFrequencySlider setValue:sampleFrequency animated:YES];
-    [_sampleFrequencyTextField setText:[NSString stringWithFormat:@"%d",sampleFrequency]];
+    // Round to nearest permissible value.
+    NSArray *d = @[@(fabs(sampleFrequency-ALLOWED_SAMPLE_FREQUENCIES[0])),
+                   @(fabs(sampleFrequency-ALLOWED_SAMPLE_FREQUENCIES[1])),
+                   @(fabs(sampleFrequency-ALLOWED_SAMPLE_FREQUENCIES[2]))];
+    int minIx=0;
+    for (int i=0; i<3; i++) {
+        if (d[i]<d[minIx]) {
+            minIx = i;
+        }
+    }
+    
+    [_sampleFrequencySlider setValue:(int)ALLOWED_SAMPLE_FREQUENCIES[minIx] animated:YES];
+    [_sampleFrequencyTextField setText:[NSString stringWithFormat:@"%d",
+                                        (int)ALLOWED_SAMPLE_FREQUENCIES[minIx]]];
 }
 
 
@@ -489,7 +507,7 @@
     // Iterate through connected devices and stop logging and clear logs.
     [[manager retrieveSavedMetaWearsAsync] success:^(NSArray *listOfDevices) {
         for (MBLMetaWear *currdevice in listOfDevices) {
-            if ([connectedDevices containsObject:currdevice.name]) {
+            if ([connectedDevices containsObject:currdevice.    name]) {
                 MBProgressHUD *hud = [MBProgressHUD showHUDAddedTo:[UIApplication sharedApplication].keyWindow
                                                           animated:YES];
                 [currdevice.led flashLEDColorAsync:[UIColor blueColor]
