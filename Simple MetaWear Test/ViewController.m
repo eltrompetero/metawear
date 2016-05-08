@@ -45,9 +45,9 @@
     [_selectDevicesTable setDelegate:self];
     [_selectDevicesTable setDataSource:self];
     
-    [_sampleFrequencySlider setValue:20];
+    [_sampleFrequencySlider setValue:DEFAULT_SAMPLE_FREQUENCY];
     [_sampleFrequencySlider setMaximumValue:100];
-    [_sampleFrequencySlider setMinimumValue:1];
+    [_sampleFrequencySlider setMinimumValue:25];
     [_sampleFrequencyTextField setText:[NSString stringWithFormat:@"%d",DEFAULT_SAMPLE_FREQUENCY]];
     sampleFrequency=DEFAULT_SAMPLE_FREQUENCY;
     
