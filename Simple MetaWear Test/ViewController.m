@@ -377,9 +377,10 @@
 
 - (IBAction)startRecording:(id)sender {
     [self initialize_data_arrays];
+    NSMutableArray* logStrings = [NSMutableArray array];
+    
     _logLabel.text=@"";
     _logLabel.numberOfLines=[connectedDevices count];
-    NSMutableArray* logStrings = [NSMutableArray array];
     
     if ([self checkForConnectedDevices]) {
         MBProgressHUD *hud = [self busyIndicator:@"Starting..."];
@@ -450,13 +451,15 @@
 
 - (IBAction)stopRecording:(id)sender {
     MBProgressHUD *hud = [self busyIndicator:@"Stopping..."];
+    NSMutableArray* logStrings = [NSMutableArray array];
+    
     _logLabel.text=@"";
     _logLabel.numberOfLines=[connectedDevices count];
-    NSMutableArray* logStrings = [NSMutableArray array];
     
     [[manager retrieveSavedMetaWearsAsync] success:^(NSArray *listOfDevices) {
         int i=0;
         NSString* s;
+        
         for (MBLMetaWear *device in listOfDevices) {
             //Stop streaming data.
             if ([connectedDevices containsObject:device.name]) {
@@ -700,7 +703,7 @@
     NSDateFormatter *dateFormatter;
     NSDate *timeNow;
     NSString *strTimeNow;
-    NSMutableArray *combinedData = [NSMutableArray array];
+    NSMutableArray *combinedData;
     UIAlertController *alert;
     UIAlertAction *closeAction;
     NSString *path;
@@ -720,6 +723,9 @@
     strTimeNow = [dateFormatter stringFromDate:timeNow];
     
     for (int i=0; i<[self.accelerometerDataArrays count]; i++) {
+        // Reset data array.
+        combinedData = [NSMutableArray array];
+        
         // Combine arrays.
         // Find longer array and save up to length of shorter array because presumably they are
         // measured at the same time points.
