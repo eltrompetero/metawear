@@ -14,7 +14,7 @@
             buildForArchiving = "YES">
             <BuildableReference
                BuildableIdentifier = 'primary'
-               BlueprintIdentifier = 'DC8ED96905EE2F4A65FDD1BB'
+               BlueprintIdentifier = 'C1DD7D9164E0A102DB6546AE'
                BlueprintName = 'Pods-Simple MetaWear Test'
                ReferencedContainer = 'container:Pods.xcodeproj'
                BuildableName = 'libPods-Simple MetaWear Test.a'>
