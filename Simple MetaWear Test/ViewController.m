@@ -318,6 +318,9 @@
                             }
                             [deviceInformation addObject: bl];
                         }];
+                        [[currdevice.temperature.onDieThermistor readAsync] success:^(MBLNumericData * _Nonnull result) {
+                            NSLog(@"on-die temp: %f", result.value.floatValue);
+                        }];
                         [currdevice.led flashLEDColorAsync:[UIColor greenColor] withIntensity:1.0 numberOfFlashes:2];
                         [connectedDevices addObject:currdevice.name];
                         //Increase transmit power.
@@ -402,7 +405,7 @@
                     accelerometer.sampleFrequency = sampleFrequency;
                     accelerometer.fullScaleRange = MBLAccelerometerBoschRange4G;
                     gyro.sampleFrequency = sampleFrequency;
-                    gyro.fullScaleRange = MBLGyroBMI160Range500;
+                    gyro.fullScaleRange = MBLGyroBMI160Range250;
                     
                     NSLog(@"Starting log of device %d",ix);
                     [currdevice.led flashLEDColorAsync:[UIColor blueColor]
@@ -570,7 +573,7 @@
                     accelerometer.sampleFrequency = sampleFrequency;
                     accelerometer.fullScaleRange = MBLAccelerometerBoschRange4G;
                     gyro.sampleFrequency = sampleFrequency;
-                    gyro.fullScaleRange = MBLGyroBMI160Range500;
+                    gyro.fullScaleRange = MBLGyroBMI160Range250;
                 }
             }
         }];
@@ -599,7 +602,7 @@
                     accelerometer.sampleFrequency = sampleFrequency;
                     accelerometer.fullScaleRange = MBLAccelerometerBoschRange4G;
                     gyro.sampleFrequency = sampleFrequency;
-                    gyro.fullScaleRange = MBLGyroBMI160Range500;
+                    gyro.fullScaleRange = MBLGyroBMI160Range250;
                     
                     
                     [currdevice.led flashLEDColorAsync:[UIColor blueColor]
